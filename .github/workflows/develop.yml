@@ -26,5 +26,5 @@ jobs:
     - name: Lint
       run: pnpm lint
     - name: Build
-      run: pnpm build
+      run: SKIP_ENV_VALIDATION=0 pnpm build
 
