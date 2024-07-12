@@ -1,8 +1,8 @@
 import { Carousel } from "@mantine/carousel";
-import { Autocomplete, Text, TextInput } from "@mantine/core";
+import { Autocomplete, Button, Text, TextInput } from "@mantine/core";
 import Product from "./components/molecules/product/Product";
 import ImageCarousel from "./components/organisms/imageCarousel/ImageCarousel";
-
+import { IconSearch,IconFilter } from "@tabler/icons-react";;
 export default function Home() {
   return (
     <div className="flex flex-col gap-5">
@@ -12,12 +12,22 @@ export default function Home() {
           <Text fw={700} size="xl">
             สินค้า
           </Text>
-          <Autocomplete
+        </div>
+        <div className="mt-2 flex gap-3">
+          {/* <Autocomplete
             placeholder="ค้นหาสินค้า"
             data={["React", "Angular", "Vue", "Svelte"]}
+            size="lg"
+          /> */}
+          <TextInput
+            placeholder="ค้นหาสินค้า"
+            size="lg"
+            className="w-full"
+            leftSection={<IconSearch size={20} />}
           />
+          <div><Button size="lg"><IconFilter size={20} /></Button></div>
         </div>
-        <div className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-5 grid grid-cols-2 gap-5 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5">
           {...new Array(9).fill(0).map((_, index) => <Product key={index} />)}
         </div>
       </div>

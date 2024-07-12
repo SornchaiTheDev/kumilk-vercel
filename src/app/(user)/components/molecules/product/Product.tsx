@@ -37,7 +37,7 @@ export default function Product() {
         With Fjord Tours you can explore more of the magical fjord landscapes
         with tours and activities on and around the fjords of Norway
       </Text>
-      <Text className="mt-5" size="xl" mt="sm" fw={500}>
+      <Text size="xl" className="" fw={500}>
         100 บาท
       </Text>
     </Card>

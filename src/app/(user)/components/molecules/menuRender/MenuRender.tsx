@@ -69,13 +69,13 @@ export default function MenuRender(props: Props) {
     );
   } else {
     return (
-      <div className="flex flex-col gap-3 items-center">
+      <div className="flex flex-col gap-3 items-center ">
         {menus.map((menu) => (
-          <Link key={menu.name} href={menu.route}>
+          <Link key={menu.name} href={menu.route} className="w-full">
             {menu.indicatorValue ? (
               <Indicator
                 inline
-                
+                className="w-full"
                 offset={5}
                 label={menu.indicatorValue}
                 size={16}

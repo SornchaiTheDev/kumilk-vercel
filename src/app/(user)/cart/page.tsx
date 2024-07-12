@@ -47,7 +47,7 @@ export default function CartPage() {
             2,500 บาท
           </Text>
         </div>
-        <div className="mb-3 mt-3 flex justify-end">
+        <div className="mt-3 flex justify-end">
           <Button fullWidth size={isMobile ? "lg" :"xl"}>สั่งซื้อสินค้า</Button>
         </div>
       </div>

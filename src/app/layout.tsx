@@ -7,6 +7,7 @@ import "@mantine/core/styles.layer.css";
 import "@mantine/notifications/styles.css";
 import "mantine-datatable/styles.layer.css";
 import "mantine-datatable/styles.css";
+import "@mantine/nprogress/styles.css";
 
 import { Anuphan } from "next/font/google";
 import { type Metadata } from "next";
@@ -14,6 +15,7 @@ import { ColorSchemeScript, createTheme, MantineProvider } from "@mantine/core";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
+import { NavigationProgress } from "@mantine/nprogress";
 
 const fontSans = Anuphan({
   subsets: ["latin"],
@@ -45,6 +47,7 @@ export default function RootLayout({
       <body className={fontSans.className}>
         <TRPCReactProvider>
           <MantineProvider theme={theme}>
+            <NavigationProgress />
             <Notifications />
             <ModalsProvider>{children}</ModalsProvider>
           </MantineProvider>
