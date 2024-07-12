@@ -1,5 +1,8 @@
+"use client";
 export default function Footer() {
   return (
-    <div>Footer</div>
+    <div className="flex justify-center">
+      <div>Copyright © KU Milk {new Date().getFullYear()}</div>
+    </div>
   )
 }

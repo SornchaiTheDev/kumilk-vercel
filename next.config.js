@@ -6,6 +6,14 @@ await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
 const config = {
+//   remotePatterns: [
+//     {
+//       hostname: "raw.githubusercontent.com",
+//       port: "",
+//       pathname: "**",
+//     },
+//   ],
+//   domains: ["raw.githubusercontent.com"],
 };
 
 export default config;
