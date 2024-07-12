@@ -1,9 +1,22 @@
 import "@/styles/globals.css";
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+import "@mantine/dropzone/styles.css";
 
-import { GeistSans } from "geist/font/sans";
+import { Anuphan } from "next/font/google";
+// import { Noto_Sans_Thai } from "next/font/google";
 import { type Metadata } from "next";
-
+import { ColorSchemeScript, createTheme, MantineProvider } from "@mantine/core";
 import { TRPCReactProvider } from "@/trpc/react";
+
+const fontSans = Anuphan({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const theme = createTheme({
+  /** Put your mantine theme override here */
+});
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -15,9 +28,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+    <html lang="en">
+      <head>
+        <ColorSchemeScript />
+      </head>
+      <body className={fontSans.className}>
+        <MantineProvider theme={theme}>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </MantineProvider>
       </body>
     </html>
   );
