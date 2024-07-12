@@ -13,7 +13,7 @@ export default function NavbarHeader() {
       <Drawer opened={opened} onClose={close} className="" title={<Logo />}>
         <MenuRender type="mobile" />
       </Drawer>
-      <div className="border-b px-4 py-3">
+      <div className="border-b px-4 py-3 sticky top-0 z-30 bg-white">
         <div className="mx-auto flex w-full max-w-6xl justify-between">
           <Logo />
           <MenuRender type="desktop" />

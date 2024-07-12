@@ -2,11 +2,20 @@
 
 import { Badge, Button, Card, Group, Image, Text } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
+import clsx from "clsx";
 
 export default function Product() {
   const { hovered, ref } = useHover();
   return (
-    <Card padding="xs" ref={ref} className="outline-10 cursor-pointer outline outline-offset-2 outline-1">
+    <Card
+      padding="xs"
+      ref={ref}
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      className={clsx(
+        "cursor-pointer",
+        hovered && "shadow-xl outline outline-2 outline-blue-300",
+      )}
+    >
       <Card.Section>
         <Image
           src={

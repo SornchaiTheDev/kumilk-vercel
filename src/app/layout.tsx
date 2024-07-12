@@ -6,9 +6,9 @@ import "@mantine/carousel/styles.css";
 import "@mantine/core/styles.layer.css";
 import "@mantine/notifications/styles.css";
 import "mantine-datatable/styles.layer.css";
+import "mantine-datatable/styles.css";
 
 import { Anuphan } from "next/font/google";
-// import { Noto_Sans_Thai } from "next/font/google";
 import { type Metadata } from "next";
 import { ColorSchemeScript, createTheme, MantineProvider } from "@mantine/core";
 import { TRPCReactProvider } from "@/trpc/react";

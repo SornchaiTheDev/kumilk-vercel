@@ -5,9 +5,9 @@ import ImageCarousel from "./components/organisms/imageCarousel/ImageCarousel";
 
 export default function Home() {
   return (
-    <div className="mt-5 flex flex-col gap-5">
-      <ImageCarousel />
-      <div className="mt-10 flex flex-col">
+    <div className="flex flex-col gap-5">
+      {/* <ImageCarousel /> */}
+      <div className="flex flex-col">
         <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between">
           <Text fw={700} size="xl">
             สินค้า
