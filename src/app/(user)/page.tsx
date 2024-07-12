@@ -14,16 +14,11 @@ export default function Home() {
           </Text>
         </div>
         <div className="mt-2 flex gap-3">
-          {/* <Autocomplete
-            placeholder="ค้นหาสินค้า"
-            data={["React", "Angular", "Vue", "Svelte"]}
-            size="lg"
-          /> */}
           <TextInput
             placeholder="ค้นหาสินค้า"
             size="lg"
             className="w-full"
-            leftSection={<IconSearch size={20} />}
+            leftSection={<IconSearch size={20} className="text-zinc-300" />}
           />
           <div><Button size="lg"><IconFilter size={20} /></Button></div>
         </div>
