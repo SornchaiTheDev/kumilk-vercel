@@ -1,6 +1,8 @@
 import { Button, ButtonGroup, rem, Text } from "@mantine/core";
 
-interface Props {}
+interface Props {
+  name?: string;
+}
 
 export default function CartItem(props: Props) {
   return (
