@@ -6,7 +6,6 @@ export default function SignInPage(props: PaperProps) {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Paper
-        radius="md"
         p="xl"
         className="w-full max-w-md"
         withBorder
@@ -24,7 +23,7 @@ export default function SignInPage(props: PaperProps) {
               await signIn("google");
             }}
           >
-            <GoogleButton fullWidth type="submit" radius="xl">
+            <GoogleButton fullWidth type="submit">
               Google
             </GoogleButton>
           </form>
