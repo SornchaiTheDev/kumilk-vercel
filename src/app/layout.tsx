@@ -3,12 +3,17 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/dropzone/styles.css";
 import "@mantine/carousel/styles.css";
+import "@mantine/core/styles.layer.css";
+import "@mantine/notifications/styles.css";
+import "mantine-datatable/styles.layer.css";
 
 import { Anuphan } from "next/font/google";
 // import { Noto_Sans_Thai } from "next/font/google";
 import { type Metadata } from "next";
 import { ColorSchemeScript, createTheme, MantineProvider } from "@mantine/core";
 import { TRPCReactProvider } from "@/trpc/react";
+import { Notifications } from "@mantine/notifications";
+import { ModalsProvider } from "@mantine/modals";
 
 const fontSans = Anuphan({
   subsets: ["latin"],
@@ -38,9 +43,12 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body className={fontSans.className}>
-        <MantineProvider theme={theme}>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-        </MantineProvider>
+        <TRPCReactProvider>
+          <MantineProvider theme={theme}>
+            <Notifications />
+            <ModalsProvider>{children}</ModalsProvider>
+          </MantineProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

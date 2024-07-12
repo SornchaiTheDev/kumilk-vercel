@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UserButton from "../userButton/UserButton";
-import { Button } from "@mantine/core";
+import { Button, Indicator } from "@mantine/core";
+import { IconShoppingCart } from "@tabler/icons-react";
 
 interface Props {
   type: "desktop" | "mobile";
@@ -9,7 +10,15 @@ interface Props {
 
 export default function MenuRender(props: Props) {
   const pathname = usePathname();
-  const menus = [
+
+  interface Menu {
+    name: string;
+    route: string;
+    icon?: JSX.Element;
+    indicatorValue?: string;
+  }
+
+  const menus: Menu[] = [
     {
       name: "หน้าหลัก",
       route: "/",
@@ -19,8 +28,10 @@ export default function MenuRender(props: Props) {
       route: "/info",
     },
     {
-      name: "ตะกล้า",
-      route: "/",
+      name: "",
+      icon: <IconShoppingCart size={20} />,
+      route: "/cart",
+      indicatorValue: "10",
     },
   ];
 
@@ -35,24 +46,55 @@ export default function MenuRender(props: Props) {
     return (
       <div className="hidden items-center gap-1 md:flex">
         {menus.map((menu) => (
-          <Link
-            key={menu.name}
-            href={menu.route}
-          >
-            <Button variant={isCurrent(menu.route) ? "light" : "subtle"}>{menu.name}</Button>
+          <Link key={menu.name} href={menu.route}>
+            {menu.indicatorValue ? (
+              <Indicator
+                inline
+                offset={5}
+                label={menu.indicatorValue}
+                size={16}
+              >
+                <Button variant={isCurrent(menu.route) ? "light" : "subtle"}>
+                  {menu.icon} {menu.name}
+                </Button>
+              </Indicator>
+            ) : (
+              <Button variant={isCurrent(menu.route) ? "light" : "subtle"}>
+                {menu.icon} {menu.name}
+              </Button>
+            )}
           </Link>
         ))}
       </div>
     );
   } else {
     return (
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 items-center">
         {menus.map((menu) => (
-          <Link
-            key={menu.name}
-            href={menu.route}
-          >
-            <Button variant={isCurrent(menu.route) ? "light" : "subtle"} fullWidth>{menu.name}</Button>
+          <Link key={menu.name} href={menu.route}>
+            {menu.indicatorValue ? (
+              <Indicator
+                inline
+                
+                offset={5}
+                label={menu.indicatorValue}
+                size={16}
+              >
+                <Button
+                  fullWidth
+                  variant={isCurrent(menu.route) ? "light" : "subtle"}
+                >
+                  {menu.icon} {menu.name}
+                </Button>
+              </Indicator>
+            ) : (
+              <Button
+                fullWidth
+                variant={isCurrent(menu.route) ? "light" : "subtle"}
+              >
+                {menu.icon} {menu.name}
+              </Button>
+            )}
           </Link>
         ))}
       </div>
