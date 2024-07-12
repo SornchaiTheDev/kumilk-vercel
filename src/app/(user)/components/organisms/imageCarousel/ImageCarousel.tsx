@@ -1,6 +1,8 @@
 "use client";
 
+import { imageFallback } from "@/utils/imageFallback";
 import { Carousel } from "@mantine/carousel";
+import { Image } from "@mantine/core";
 
 export default function ImageCarousel() {
   return (
@@ -13,13 +15,13 @@ export default function ImageCarousel() {
       align="start"
     >
       <Carousel.Slide>
-        <img className="" src="/image/01.webp" alt="" />
+        <Image src="/image/01.webp" alt="" fit="cover" h={200} fallbackSrc={imageFallback} />
       </Carousel.Slide>
       <Carousel.Slide>
-        <img src="/image/02.webp" alt="" />
+        <Image src="/image/02.webp" alt="" fit="cover" h={200} fallbackSrc={imageFallback} />
       </Carousel.Slide>
       <Carousel.Slide>
-        <img src="/image/03.webp" alt="" />
+        <Image src="/image/03.webp" alt="" fit="cover" h={200} fallbackSrc={imageFallback} />
       </Carousel.Slide>
     </Carousel>
   );

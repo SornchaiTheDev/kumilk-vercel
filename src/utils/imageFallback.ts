@@ -1,0 +1,1 @@
+export const imageFallback = "https://placehold.co/600x400?text=Placeholder"

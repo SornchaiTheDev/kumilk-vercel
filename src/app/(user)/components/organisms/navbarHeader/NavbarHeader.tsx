@@ -12,6 +12,7 @@ export default function NavbarHeader() {
       <Drawer
         opened={opened}
         onClose={close}
+        className=""
         title={
           <div className="flex items-center gap-2">
             <img className="h-8" src="/logo.webp" alt="" />

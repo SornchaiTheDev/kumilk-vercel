@@ -18,6 +18,10 @@ export default function MenuRender(props: Props) {
       name: "เกี่ยวกับเรา",
       route: "/info",
     },
+    {
+      name: "ตะกล้า",
+      route: "/",
+    },
   ];
 
   const isCurrent = (route: string) => {
