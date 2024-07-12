@@ -1,9 +1,16 @@
 import "@/styles/globals.css";
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+import "@mantine/dropzone/styles.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-
+import { ColorSchemeScript, createTheme, MantineProvider } from "@mantine/core";
 import { TRPCReactProvider } from "@/trpc/react";
+
+const theme = createTheme({
+  /** Put your mantine theme override here */
+});
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -16,8 +23,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
+      <head>
+        <ColorSchemeScript />
+      </head>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <MantineProvider theme={theme}>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </MantineProvider>
       </body>
     </html>
   );
