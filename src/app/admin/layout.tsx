@@ -1,5 +1,5 @@
-import NavbarHeader from "../(user)/_components/organisms/navbarHeader/NavbarHeader";
 import Footer from "../_components/organisms/footer/Footer";
+import NavbarHeader from "./_components/organisms/navbarHeader/NavbarHeader";
 
 export default function UserLayout({
   children,

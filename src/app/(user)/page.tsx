@@ -1,7 +1,5 @@
-import { Carousel } from "@mantine/carousel";
-import { Autocomplete, Button, Text, TextInput } from "@mantine/core";
+import { Button, Text, TextInput } from "@mantine/core";
 import Product from "./_components/molecules/product/Product";
-import ImageCarousel from "./_components/organisms/imageCarousel/ImageCarousel";
 import { IconSearch,IconFilter } from "@tabler/icons-react";;
 export default function Home() {
   return (
