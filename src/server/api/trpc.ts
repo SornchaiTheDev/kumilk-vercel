@@ -7,11 +7,13 @@
  * need to use are documented accordingly near the end.
  */
 
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
+import { auth } from "@/auth";
+import { checkAdminAuth } from "@/libs/checkAdminAuth";
 
 /**
  * 1. CONTEXT
@@ -26,8 +28,10 @@ import { db } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const session = await auth();
   return {
     db,
+    session,
     ...opts,
   };
 };
@@ -84,3 +88,19 @@ export const mergeRouters = t.mergeRouters;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+const adminMiddleware = t.middleware(async ({ ctx, next }) => {
+  const email = ctx.session?.user?.email;
+
+  if (typeof email !== "string")
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+  const status = await checkAdminAuth(email);
+
+  if (status === "NOT_AUTHORIZED")
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  return next();
+});
+
+export const adminRoute = t.procedure.use(adminMiddleware);
