@@ -3,9 +3,9 @@ import { Button, Drawer } from "@mantine/core";
 import { IconMenu2 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import MenuRender from "../../molecules/menuRender/MenuRender";
+import Logo from "../../../../_components/molecules/logo/Logo";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import Logo from "@/app/_components/molecules/logo/Logo";
 
 export default function NavbarHeader() {
   const pathname = usePathname();
@@ -25,7 +25,7 @@ export default function NavbarHeader() {
       </Drawer>
       <div className="sticky top-0 z-30 border-b bg-white px-4 py-3">
         <div className="mx-auto flex w-full max-w-6xl justify-between">
-          <Logo />
+          <Logo href="/admin" />
           <MenuRender type="desktop" />
           <div className="md:hidden">
             <Button onClick={open} variant="subtle">

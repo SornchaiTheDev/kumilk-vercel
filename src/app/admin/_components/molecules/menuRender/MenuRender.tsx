@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import UserButton from "../userButton/UserButton";
 import { Button, Indicator } from "@mantine/core";
 import { IconShoppingCart } from "@tabler/icons-react";
 
@@ -19,18 +20,12 @@ export default function MenuRender(props: Props) {
 
   const menus: Menu[] = [
     {
-      name: "หน้าหลัก",
-      route: "/",
+      name: "รายการสั่งซื้อ",
+      route: "/admin/orders",
     },
     {
-      name: "เกี่ยวกับเรา",
-      route: "/info",
-    },
-    {
-      name: "",
-      icon: <IconShoppingCart size={20} />,
-      route: "/cart",
-      indicatorValue: "10",
+      name: "รายการสินค้า",
+      route: "/admin/products",
     },
   ];
 
@@ -64,11 +59,12 @@ export default function MenuRender(props: Props) {
             )}
           </Link>
         ))}
+        <UserButton menuPosition="bottom-end" variant="subtle" />
       </div>
     );
   } else {
     return (
-      <div className="flex flex-col gap-3 items-center ">
+      <div className="flex flex-col items-center gap-3">
         {menus.map((menu) => (
           <Link key={menu.name} href={menu.route} className="w-full">
             {menu.indicatorValue ? (
