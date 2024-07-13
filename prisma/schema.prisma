@@ -26,3 +26,28 @@ model Product {
 
     @@map("products")
 }
+
+model Customer {
+    id           String         @id @default(cuid())
+    email        String
+    OrderHistory OrderHistory[]
+}
+
+model OrderHistory {
+    id         String      @id @default(cuid())
+    date       DateTime
+    subTotal   Float
+    total      Float
+    items      OrderItem[]
+    Customer   Customer    @relation(fields: [customerId], references: [id])
+    customerId String
+}
+
+model OrderItem {
+    id             Int           @id @default(autoincrement())
+    productName    String
+    productPrice   Float
+    quantity       Int
+    OrderHistory   OrderHistory? @relation(fields: [orderHistoryId], references: [id])
+    orderHistoryId String?
+}

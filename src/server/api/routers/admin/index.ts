@@ -1,4 +1,6 @@
-import { mergeRouters } from "@/server/api/trpc";
-import { postRouter } from "./post.router";
+import { router } from "@/server/api/trpc";
+import { productRouter } from "./product.router";
 
-export const adminRouter = mergeRouters(postRouter);
+export const adminRouter = router({
+  product: productRouter,
+});
