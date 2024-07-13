@@ -1,7 +1,5 @@
-import { ActionIcon, rem } from "@mantine/core";
-import { IconUser } from "@tabler/icons-react";
-import Footer from "./components/organisms/Footer";
-import NavbarHeader from "./components/organisms/navbarHeader/NavbarHeader";
+import NavbarHeader from "./_components/organisms/navbarHeader/NavbarHeader";
+import Footer from "../_components/organisms/footer/Footer";
 
 export default function UserLayout({
   children,
