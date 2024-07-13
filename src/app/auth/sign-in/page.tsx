@@ -1,16 +1,14 @@
-import { Group, Paper, type PaperProps, Text } from "@mantine/core";
+import { Group, Paper, Text } from "@mantine/core";
 import { GoogleButton } from "./components/GoogleButton";
 import { signIn } from "@/auth";
 
-export default function SignInPage(props: PaperProps) {
+export default function SignInPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Paper
-        radius="md"
         p="xl"
         className="w-full max-w-md"
         withBorder
-        {...props}
       >
         <Text size="lg" fw={500}>
           ยินดีต้อนรับสู่ KU Milk
@@ -24,7 +22,7 @@ export default function SignInPage(props: PaperProps) {
               await signIn("google");
             }}
           >
-            <GoogleButton fullWidth type="submit" radius="xl">
+            <GoogleButton fullWidth type="submit">
               Google
             </GoogleButton>
           </form>
