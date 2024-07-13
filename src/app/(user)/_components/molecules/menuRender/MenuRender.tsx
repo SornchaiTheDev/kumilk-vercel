@@ -81,6 +81,7 @@ export default function MenuRender(props: Props) {
               >
                 <Button
                   fullWidth
+                  size="lg"
                   variant={isCurrent(menu.route) ? "light" : "subtle"}
                 >
                   {menu.icon} {menu.name}
@@ -89,6 +90,7 @@ export default function MenuRender(props: Props) {
             ) : (
               <Button
                 fullWidth
+                size="lg"
                 variant={isCurrent(menu.route) ? "light" : "subtle"}
               >
                 {menu.icon} {menu.name}

@@ -11,7 +11,12 @@ import "@mantine/nprogress/styles.css";
 
 import { Anuphan } from "next/font/google";
 import { type Metadata } from "next";
-import { ColorSchemeScript, createTheme, MantineProvider } from "@mantine/core";
+import {
+  ColorSchemeScript,
+  createTheme,
+  LoadingOverlay,
+  MantineProvider,
+} from "@mantine/core";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
@@ -49,7 +54,16 @@ export default function RootLayout({
           <MantineProvider theme={theme}>
             <NavigationProgress />
             <Notifications />
-            <ModalsProvider>{children}</ModalsProvider>
+            <ModalsProvider>
+              {/* <div className="fixed bottom-0 left-0 right-0 top-0 z-50">
+                <LoadingOverlay
+                  visible={true}
+                  zIndex={1000}
+                  overlayProps={{ radius: "sm", blur: 2 }}
+                />
+              </div> */}
+              {children}
+            </ModalsProvider>
           </MantineProvider>
         </TRPCReactProvider>
       </body>
