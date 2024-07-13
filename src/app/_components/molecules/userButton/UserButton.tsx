@@ -5,10 +5,7 @@ import {
   Menu,
   rem,
 } from "@mantine/core";
-import {
-  IconLogout,
-  IconUser,
-} from "@tabler/icons-react";
+import { IconLogout, IconUser } from "@tabler/icons-react";
 
 interface Props {
   variant?: ButtonVariant;

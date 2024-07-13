@@ -5,11 +5,7 @@ import { signIn } from "@/auth";
 export default function SignInPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <Paper
-        p="xl"
-        className="w-full max-w-md"
-        withBorder
-      >
+      <Paper p="xl" className="w-full max-w-md" withBorder>
         <Text size="lg" fw={500}>
           ยินดีต้อนรับสู่ KU Milk
         </Text>
@@ -18,8 +14,7 @@ export default function SignInPage() {
           <form
             action={async () => {
               "use server";
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-              await signIn("google");
+              await signIn("google", { redirectTo: "/admin" });
             }}
           >
             <GoogleButton fullWidth type="submit">
