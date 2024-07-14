@@ -91,4 +91,24 @@ export const productRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
+  list: adminRoute
+    .input(z.object({ search: z.string().optional() }))
+    .query(async ({ ctx, input }) => {
+      const { search } = input;
+      try {
+        const products = await ctx.db.product.findMany({
+          where: {
+            name: {
+              contains: search,
+            },
+          },
+        });
+        return products;
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
+    }),
 });
