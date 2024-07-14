@@ -33,26 +33,28 @@ export const checkoutProcedure = publicProcedure
       quantity,
     }));
 
-    await ctx.db.orderHistory.create({
-      data: {
-        isPaid: false,
-        date: new Date(),
-        total,
-        customer: {
-          connectOrCreate: {
-            where: {
-              email,
+    try {
+      await ctx.db.orderHistory.create({
+        data: {
+          isPaid: false,
+          date: new Date(),
+          total,
+          customer: {
+            connectOrCreate: {
+              where: {
+                email,
+              },
+              create: {
+                email,
+              },
             },
-            create: {
-              email,
+          },
+          items: {
+            createMany: {
+              data: moddedItems,
             },
           },
         },
-        items: {
-          createMany: {
-            data: moddedItems,
-          },
-        },
-      },
-    });
+      });
+    } catch (err) {}
   });
