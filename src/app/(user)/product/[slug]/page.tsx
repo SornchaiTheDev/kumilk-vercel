@@ -5,7 +5,7 @@ export default function Page({ params }: { params: { slug: string } }) {
   return (
     <div className="mt-0 flex flex-col">
       <BackButton className="hidden md:mb-5 md:block" />
-      <ProductInfo name={params.slug} />
+      <ProductInfo id={params.slug} />
     </div>
   );
 }

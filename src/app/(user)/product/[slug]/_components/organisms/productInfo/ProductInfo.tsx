@@ -5,11 +5,11 @@ import { Button, ButtonGroup, rem, Skeleton, Text } from "@mantine/core";
 import { IconShoppingCartPlus } from "@tabler/icons-react";
 
 interface Props {
-  name: string;
+  id: string;
 }
 
-function ProductInfo({ name }: Props) {
-  const product = api.customer.product.getByName.useQuery(name);
+function ProductInfo({ id }: Props) {
+  const product = api.customer.product.getByName.useQuery(id);
   const isLoading = product.isLoading;
 
   return (
@@ -19,7 +19,7 @@ function ProductInfo({ name }: Props) {
           {isLoading ? (
             <Skeleton width={400} height={400} />
           ) : (
-            <ProductImageCarouel />
+            <ProductImageCarouel images={[product.data?.image ?? ""]} />
           )}
         </div>
         <div className="flex w-full flex-col gap-5 py-5 md:gap-7">
@@ -59,12 +59,6 @@ function ProductInfo({ name }: Props) {
         <Text fw={700} size={rem(20)}>
           รายละเอียดสินค้า
         </Text>
-        {/* <div className="flex flex-col p-3">
-          <div className="flex gap-3">
-            <div className="min-w-[5rem]">คลัง</div>
-            <div>410</div>
-          </div>
-        </div> */}
         {isLoading ? (
           <>
             {Array.from({ length: 4 }).map((_, i) => (
@@ -72,7 +66,10 @@ function ProductInfo({ name }: Props) {
             ))}
           </>
         ) : (
-          <div>{product.data?.description}</div>
+          <div
+            className="prose mt-5"
+            dangerouslySetInnerHTML={{ __html: product.data?.description ?? "" }}
+          />
         )}
       </div>
     </>

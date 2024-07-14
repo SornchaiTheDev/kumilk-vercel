@@ -7,7 +7,7 @@ export const productRouter = router({
     try {
       const product = await ctx.db.product.findFirst({
         where: {
-          name: input,
+          id: input,
         },
         select: {
           id: true,
@@ -45,10 +45,36 @@ export const productRouter = router({
             },
           },
           select: {
+            id: true,
             name: true,
             image: true,
             price: true,
             description: true,
+          },
+        });
+        return products;
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
+    }),
+  search: publicProcedure
+    .input(z.object({ search: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const { search } = input;
+      try {
+        const products = await ctx.db.product.findMany({
+          where: {
+            name: {
+              contains: search,
+            },
+          },
+          select: {
+            id: true,
+            name: true,
+            price: true,
           },
         });
         return products;
