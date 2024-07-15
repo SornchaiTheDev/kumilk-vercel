@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 "use client";
 
 import {
@@ -40,7 +41,7 @@ interface RowData {
 }
 
 export default function ProductsPage() {
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
   const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
   const [activePage, setPage] = useState(1);
@@ -50,6 +51,9 @@ export default function ProductsPage() {
   const [productData, setProductData] = useState<editProductType | null>(null);
   const adminCreateProductApi = api.admin.product.create.useMutation();
   const adminEditProductApi = api.admin.product.update.useMutation();
+  const getAllProductApi = api.admin.product.list.useQuery({
+    search: "",
+  });
 
   const handleProductSubmit = async (data: ProductType) => {
     try {
@@ -69,6 +73,7 @@ export default function ProductsPage() {
         });
       }
       close();
+      getAllProductApi.refetch();
       setModalKey((prev) => prev + 1);
     } catch (err) {
       notifications.show({
@@ -81,91 +86,25 @@ export default function ProductsPage() {
   };
   
   const openEditModal = (product: editProductType) => {
+    console.log(product);
+    
     setProductData(product);
     setEditMode(true);
     open();
   };
+  const openCreateModal = () => {
+    setEditMode(false);
+    setProductData(null);
+    open();
+  };
 
-  const elements = [
-    {
-      id: 1,
-      image: "https://picsum.photos/200",
-      name: "Hydrogen",
-      price: 1,
-      status: 1,
-    },
-    {
-      id: 2,
-      image: "https://picsum.photos/200",
-      name: "Helium",
-      price: 1,
-      status: 1,
-    },
-    {
-      id: 3,
-      image: "https://picsum.photos/200",
-      name: "Lithium",
-      price: 1,
-      status: 1,
-    },
-    {
-      id: 4,
-      image: "https://picsum.photos/200",
-      name: "Beryllium",
-      price: 1,
-      status: 1,
-    },
-    {
-      id: 5,
-      image: "https://picsum.photos/200",
-      name: "Boron",
-      price: 1,
-      status: 0,
-    },
-    {
-      id: 6,
-      image: "https://picsum.photos/200",
-      name: "Carbon",
-      price: 1,
-      status: 0,
-    },
-    {
-      id: 7,
-      image: "https://picsum.photos/200",
-      name: "Nitrogen",
-      price: 1,
-      status: 1,
-    },
-    {
-      id: 8,
-      image: "https://picsum.photos/200",
-      name: "Oxygen",
-      price: 1,
-      status: 0,
-    },
-    // {
-    //   id: 9,
-    //   image: "https://picsum.photos/200",
-    //   name: "Fluorine",
-    //   price: 1,
-    //   status: 1,
-    // },
-    // {
-    //   id: 10,
-    //   image: "https://picsum.photos/200",
-    //   name: "Neon",
-    //   price: 1,
-    //   status: 1,
-    // },
-  ];
-  const [sortedData, setSortedData] = useState(elements);
-
+ 
   const theme = createTheme({
     cursorType: "pointer",
   });
-  const rows = elements.map((element) => (
+  const rows = getAllProductApi.data?.map((element) => (
     <Table.Tr
-      key={element.name}
+      key={element.id}
       bg={
         selectedRows.includes(element.id)
           ? "var(--mantine-color-blue-light)"
@@ -198,7 +137,7 @@ export default function ProductsPage() {
       <Table.Td>{element.price}</Table.Td>
       <Table.Td>
         <MantineProvider theme={theme}>
-          <Switch
+          {/* <Switch
             style={
               //cursor: pointer
               { cursorType: "pointer" }
@@ -226,12 +165,17 @@ export default function ProductsPage() {
                 />
               )
             }
-          />
+          /> */}
         </MantineProvider>
       </Table.Td>
       <Table.Td className="">
         <Group justify="center">
-          <ActionIcon variant="filled" aria-label="Edit" > {/*onClick={() =>{} }} */}
+          <ActionIcon variant="filled" aria-label="Edit" onClick={()=> {
+            openEditModal({
+              ...element,
+              status: false
+            });
+          }} > {/*onClick={() =>{} }} */}
             <IconPencil size={19} stroke={1.5} />
           </ActionIcon>
           <ActionIcon color="red" aria-label="Delete">
@@ -263,7 +207,9 @@ export default function ProductsPage() {
       <div className="flex flex-col gap-3">
         <div className="flex flex-col justify-between gap-3 lg:flex-row">
           <div className="inline-flex gap-2">
-            <Button color="green" variant="light" className="" onClick={open}>
+            <Button color="green" variant="light" className="" onClick={()=>{
+              openCreateModal();
+            }}>
               เพิ่มสินค้า
             </Button>
             {selectedRows.length > 0 && (

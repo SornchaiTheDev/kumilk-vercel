@@ -13,15 +13,23 @@ import { useForm } from "@mantine/form";
 import { z } from "zod";
 import { zodResolver } from "mantine-form-zod-resolver";
 import React, { useEffect, useState } from "react";
-import { Dropzone, type DropzoneProps, IMAGE_MIME_TYPE } from "@mantine/dropzone";
+import {
+  Dropzone,
+  type DropzoneProps,
+  IMAGE_MIME_TYPE,
+} from "@mantine/dropzone";
 import "@mantine/dropzone/styles.css";
 import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
 import RichText from "../../molecules/Input/RichText";
 import "@mantine/tiptap/styles.css";
 import { addProductSchema, type addProductType } from "@/schemas/addProduct";
 import { notifications } from "@mantine/notifications";
-import { editProductSchema, ProductType, type editProductType } from "@/schemas/editProduct";
- 
+import {
+  editProductSchema,
+  type ProductType,
+  type editProductType,
+} from "@/schemas/editProduct";
+import { uploadFile } from "@/app/admin/actions/uploadFile";
 
 interface Props {
   mode: "create" | "edit";
@@ -53,6 +61,8 @@ export default function CreateEditProductModal({
 }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<previewImage | null>(null);
+  const [editorKey, setEditorKey] = useState(0);
+  const [richTextValue, setRichTextValue] = useState<string>("");
 
   const form = useForm({
     mode: "uncontrolled",
@@ -65,16 +75,52 @@ export default function CreateEditProductModal({
           ? productData.description
           : `<h2 style="text-align: center;">Welcome to Mantine rich text editor</h2><p><code>RichTextEditor</code> component focuses on usability and is designed to be as simple as possible to bring a familiar editing experience to regular users. <code>RichTextEditor</code> is based on <a href="https://tiptap.dev/" rel="noopener noreferrer" target="_blank">Tiptap.dev</a> and supports all of its features:</p><ul><li>General text formatting: <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strike-through</s> </li><li>Sub and super scripts (<sup>&lt;sup /&gt;</sup> and <sub>&lt;sub /&gt;</sub> tags)</li><li>And all <a href="https://tiptap.dev/extensions" target="_blank" rel="noopener noreferrer">other extensions</a></li></ul>`,
       image: mode === "edit" && productData ? productData.image : "",
-      status: mode === "edit" && productData ? productData.status.toString() : "true",
+      status:
+        mode === "edit" && productData ? productData.status.toString() : "true",
+      id: "",
     },
-    validate: zodResolver(mode === "edit" ? editProductSchema : addProductSchema),
+    validate: zodResolver(
+      mode === "edit" ? editProductSchema : addProductSchema,
+    ),
   });
 
   useEffect(() => {
-    if (mode === "edit" && productData?.image) {
+    // if (mode === "edit" && productData) {
+    // console.log(productData.description);
+    form.setFieldValue(
+      "name",
+      mode === "edit" && productData ? productData.name : "",
+    );
+    form.setFieldValue(
+      "price",
+      mode === "edit" && productData ? productData.price : 0,
+    );
+    form.setFieldValue("quantity", productData?.quantity ?? 0);
+    setRichTextValue(
+      mode === "edit" && productData
+        ? productData.description!
+        : `<h2 style="text-align: center;">Welcome to Mantine rich text editor</h2><p><code>RichTextEditor</code> component focuses on usability and is designed to be as simple as possible to bring a familiar editing experience to regular users. <code>RichTextEditor</code> is based on <a href="https://tiptap.dev/" rel="noopener noreferrer" target="_blank">Tiptap.dev</a> and supports all of its features:</p><ul><li>General text formatting: <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strike-through</s> </li><li>Sub and super scripts (<sup>&lt;sup /&gt;</sup> and <sub>&lt;sub /&gt;</sub> tags)</li><li>And all <a href="https://tiptap.dev/extensions" target="_blank" rel="noopener noreferrer">other extensions</a></li></ul>`,
+    );
+    form.setFieldValue(
+      "description",
+      mode === "edit" && productData
+        ? productData.description
+        : `<h2 style="text-align: center;">Welcome to Mantine rich text editor</h2><p><code>RichTextEditor</code> component focuses on usability and is designed to be as simple as possible to bring a familiar editing experience to regular users. <code>RichTextEditor</code> is based on <a href="https://tiptap.dev/" rel="noopener noreferrer" target="_blank">Tiptap.dev</a> and supports all of its features:</p><ul><li>General text formatting: <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strike-through</s> </li><li>Sub and super scripts (<sup>&lt;sup /&gt;</sup> and <sub>&lt;sub /&gt;</sub> tags)</li><li>And all <a href="https://tiptap.dev/extensions" target="_blank" rel="noopener noreferrer">other extensions</a></li></ul>`,
+    );
+    form.setFieldValue(
+      "image",
+      mode === "edit" && productData ? productData.image : "",
+    );
+    form.setFieldValue(
+      "status",
+      mode === "edit" && productData ? productData.status.toString() : "true",
+    );
+    console.log(form.values.description);
+
+    if (mode === "edit" && productData) {
       setPreviewUrl({
         url: productData.image,
-        file: new File([], productData.image),
+        file: new File([], ""),
         name: productData.image,
         size: 0,
         status: "ready",
@@ -82,9 +128,11 @@ export default function CreateEditProductModal({
         fileType: "",
         progress: 0,
       });
+    } else {
+      setPreviewUrl(null);
     }
+    // }
   }, [mode, productData]);
-
 
   const onDropFile: DropzoneProps["onDrop"] = (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -110,31 +158,60 @@ export default function CreateEditProductModal({
     }
   };
 
-  const handleSubmit = (values: typeof form.values) => {
-    if (!file && mode === "create") {
-      form.setFieldError("image", "กรุณาเลือกรูปภาพสินค้า");
-      return;
-    }
+  const handleSubmit = async (values: typeof form.values) => {
+    try {
+      
+      if (!file && mode === "create") {
+        form.setFieldError("image", "กรุณาเลือกรูปภาพสินค้า");
+        return;
+      }
+      if (mode === "edit" && !values.image) {
+        form.setFieldError("image", "กรุณาเลือกรูปภาพสินค้า");
+        return;
+      }
+      
+      if (file !== null) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const [dest, err] = await uploadFile(formData);
+        if (err !== null) {
+          throw new Error(err);
+        }
+        if (dest !== null) {
+          values.image = dest;
+        }
+      }
 
-    const processedValues = {
-      ...values,
-      price: Number(values.price),
-      quantity: Number(values.quantity),
-      status: String(values.status).toLowerCase() === "true",
-    } as addProductType;
+      const processedValues = {
+        ...values,
+        price: Number(values.price),
+        quantity: Number(values.quantity),
+        status: String(values.status).toLowerCase() === "true",
+      } as addProductType;
 
-    if (mode === "edit") {
-      (processedValues as editProductType).id = productData?.id ?? "";
-    }
-    
-    if (onSubmit) {
-      onSubmit(processedValues);
+      if (mode === "edit") {
+        (processedValues as editProductType).id = productData?.id ?? "";
+      }
+      
+      if (onSubmit) {
+        onSubmit(processedValues);
+      }
+    } catch (err) {
+      notifications.show({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถสร้างสินค้าได้",
+        color: "red",
+      });
     }
   };
 
   return (
     <Modal opened={opened} onClose={close} size="auto" title="เพิ่มสินค้า">
-      <form onSubmit={form.onSubmit(handleSubmit)}>
+      <form
+        onSubmit={form.onSubmit((values) => {
+          void handleSubmit(values);
+        })}
+      >
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           <div className="flex flex-col items-center justify-center">
             {previewUrl ? (
@@ -248,10 +325,11 @@ export default function CreateEditProductModal({
               error={form.errors.description}
             >
               <RichText
-                value={form.values.description}
+                key={editorKey}
+                value={richTextValue}
                 onChange={(value) => {
+                  setRichTextValue(value);
                   form.setFieldValue("description", value);
-                  console.log(value);
                 }}
               />
             </Input.Wrapper>
@@ -291,7 +369,9 @@ export default function CreateEditProductModal({
           </div>
         </div>
         <Group mt="md" justify="right">
-          <Button type="submit">สร้างสินค้า</Button>
+          <Button type="submit">
+            {mode === "create" ? "เพิ่มสินค้า" : "แก้ไขสินค้า"}
+          </Button>
         </Group>
       </form>
     </Modal>
