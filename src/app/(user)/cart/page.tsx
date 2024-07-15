@@ -5,11 +5,12 @@ import { useLocalStorage, useMediaQuery } from "usehooks-ts";
 import { type Cart } from "@/types/Cart.type";
 import { useEffect } from "react";
 import { api } from "@/trpc/react";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [cart] = useLocalStorage<Cart[]>("cart", []);
-
+  const router = useRouter();
   const mapPriceApi = api.customer.cart.cartMapPrice.useMutation();
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function CartPage() {
           )}
         </div>
         <div className="mt-3 flex justify-end">
-          <Button disabled={cart.length === 0} fullWidth size={isMobile ? "lg" : "xl"}>
+          <Button onClick={() => router.push("/checkout/step-1")} disabled={cart.length === 0} fullWidth size={isMobile ? "lg" : "xl"}>
             สั่งซื้อสินค้า
           </Button>
         </div>
