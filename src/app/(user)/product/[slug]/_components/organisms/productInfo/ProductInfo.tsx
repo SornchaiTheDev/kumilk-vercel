@@ -3,14 +3,61 @@ import { api } from "@/trpc/react";
 import ProductImageCarouel from "../productImageCarouel/ProductImageCarouel";
 import { Button, ButtonGroup, rem, Skeleton, Text } from "@mantine/core";
 import { IconShoppingCartPlus } from "@tabler/icons-react";
+import { useLocalStorage } from "usehooks-ts";
+import { Cart } from "@/types/Cart.type";
+import { showNotification } from "@mantine/notifications";
+import { useState } from "react";
 
 interface Props {
-  name: string;
+  id: string;
 }
 
-function ProductInfo({ name }: Props) {
-  const product = api.customer.product.getByName.useQuery(name);
+function ProductInfo({ id }: Props) {
+  const product = api.customer.product.getById.useQuery(id);
+  const [quantity, setQuantity] = useState(1);
   const isLoading = product.isLoading;
+  const [cart, setCart] = useLocalStorage<Cart[]>("cart", []);
+
+  const increaseQuantity = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  const decreaseQuantity = () => {
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1);
+    }
+  };
+
+  const addToCart = () => {
+    setCart((prev) => {
+      const newItem = prev.find((item) => item.id === id);
+      if (newItem) {
+        return prev.map((item) => {
+          if (item.id === id) {
+            return {
+              ...item,
+              quantity: item.quantity + quantity,
+            };
+          }
+          return item;
+        });
+      } else {
+        return [
+          ...prev,
+          {
+            id,
+            quantity: quantity,
+          },
+        ];
+      }
+    });
+    showNotification({
+      title: "เพิ่มสินค้าในตะกร้าสินค้า",
+      message: `${product.data?.name} ${quantity} ชิ้น`,
+      color: "green",
+    });
+    setQuantity(1);
+  };
 
   return (
     <>
@@ -19,7 +66,7 @@ function ProductInfo({ name }: Props) {
           {isLoading ? (
             <Skeleton width={400} height={400} />
           ) : (
-            <ProductImageCarouel />
+            <ProductImageCarouel images={[product.data?.image ?? ""]} />
           )}
         </div>
         <div className="flex w-full flex-col gap-5 py-5 md:gap-7">
@@ -43,13 +90,17 @@ function ProductInfo({ name }: Props) {
           <div className="flex items-center gap-3">
             <div>จำนวน</div>
             <ButtonGroup>
-              <Button variant="outline">-</Button>
-              <Button variant="outline">1</Button>
-              <Button variant="outline">+</Button>
+              <Button onClick={decreaseQuantity} variant="outline">-</Button>
+              <Button variant="outline" className="text-xl">{quantity}</Button>
+              <Button onClick={increaseQuantity} variant="outline">+</Button>
             </ButtonGroup>
           </div>
           <div className="flex gap-2">
-            <Button leftSection={<IconShoppingCartPlus />} size="lg">
+            <Button
+              onClick={addToCart}
+              leftSection={<IconShoppingCartPlus />}
+              size="lg"
+            >
               เพิ่มไปยังรถเข็น
             </Button>
           </div>
@@ -59,12 +110,6 @@ function ProductInfo({ name }: Props) {
         <Text fw={700} size={rem(20)}>
           รายละเอียดสินค้า
         </Text>
-        {/* <div className="flex flex-col p-3">
-          <div className="flex gap-3">
-            <div className="min-w-[5rem]">คลัง</div>
-            <div>410</div>
-          </div>
-        </div> */}
         {isLoading ? (
           <>
             {Array.from({ length: 4 }).map((_, i) => (
@@ -72,7 +117,12 @@ function ProductInfo({ name }: Props) {
             ))}
           </>
         ) : (
-          <div>{product.data?.description}</div>
+          <div
+            className="prose mt-5"
+            dangerouslySetInnerHTML={{
+              __html: product.data?.description ?? "",
+            }}
+          />
         )}
       </div>
     </>

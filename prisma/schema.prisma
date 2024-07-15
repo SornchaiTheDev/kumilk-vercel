@@ -16,7 +16,7 @@ model AdminUser {
 
 model Product {
     id          String    @id @default(cuid())
-    name        String
+    name        String    @unique
     description String
     quantity    Int
     price       Float
@@ -29,18 +29,25 @@ model Product {
 
 model Customer {
     id           String         @id @default(cuid())
-    email        String
-    OrderHistory OrderHistory[]
+    email        String         @unique
+    orderHistory OrderHistory[]
+
+    @@map("customer")
 }
 
 model OrderHistory {
     id         String      @id @default(cuid())
+    isPaid     Boolean
+    slipImage  String?
     date       DateTime
-    subTotal   Float
     total      Float
     items      OrderItem[]
-    Customer   Customer    @relation(fields: [customerId], references: [id])
+    customer   Customer    @relation(fields: [customerId], references: [id])
     customerId String
+    createdAt  DateTime    @default(now())
+    updatedAt  DateTime?
+
+    @@map("order_histories")
 }
 
 model OrderItem {
@@ -48,6 +55,8 @@ model OrderItem {
     productName    String
     productPrice   Float
     quantity       Int
-    OrderHistory   OrderHistory? @relation(fields: [orderHistoryId], references: [id])
+    orderHistory   OrderHistory? @relation(fields: [orderHistoryId], references: [id])
     orderHistoryId String?
+
+    @@map("order_items")
 }
