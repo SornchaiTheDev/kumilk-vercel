@@ -1,47 +1,118 @@
-import { Button, ButtonGroup, rem, Text } from "@mantine/core";
+"use client";
+import { api } from "@/trpc/react";
+import { type Cart } from "@/types/Cart.type";
+import { sanitize } from "isomorphic-dompurify";
+import { Button, ButtonGroup, Image, Skeleton, Text } from "@mantine/core";
+import { useLocalStorage } from "usehooks-ts";
+import { imageFallback } from "@/utils/imageFallback";
 
-interface Props {
-  name?: string;
-}
+type Props = Cart;
 
 export default function CartItem(props: Props) {
+  const product = api.customer.product.getById.useQuery(props.id);
+  const [_, setCart] = useLocalStorage<Cart[]>("cart", []);
+
+  const htmlToClean = (raw: string) => {
+    const clean = sanitize(raw, {
+      ALLOWED_TAGS: [],
+    });
+    return clean.replace(/&nbsp;/g, " ");
+  };
+
+  const increaseQuantity = () => {
+    setCart((prev) => {
+      return prev.map((item) => {
+        if (item.id === props.id) {
+          return {
+            ...item,
+            quantity: item.quantity + 1,
+          };
+        }
+        return item;
+      });
+    });
+  };
+
+  const decreaseQuantity = () => {
+    setCart((prev) => {
+      return prev.map((item) => {
+        if (item.quantity - 1 === 0) {
+          deleteItem();
+          return item;
+        }
+        if (item.id === props.id) {
+          return {
+            ...item,
+            quantity: item.quantity - 1,
+          };
+        }
+        return item;
+      });
+    });
+  };
+
+  const deleteItem = () => {
+    setCart((prev) => {
+      return prev.filter((item) => item.id !== props.id);
+    });
+  };
+
+  const isLoading = product.isLoading;
+
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1">
-        <img
-          className="h-28 min-w-28 rounded-2xl object-cover md:h-40 md:min-w-40"
-          src="https://scontent.fbkk22-2.fna.fbcdn.net/v/t39.30808-6/449438961_967719798480716_8359141525197656130_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeHmv2coW3q4udf0JiJ11PjjwQGtY14OaYjBAa1jXg5piJ9csufZsOSG4dJ26TCrkUn1yLpLiFIurd6cwadxCgVi&_nc_ohc=SkrqjeCG56oQ7kNvgH9VQyP&_nc_zt=23&_nc_ht=scontent.fbkk22-2.fna&oh=00_AYB1BdUCJ7yc196jcSVihoZBF57F_LDN6NOLb6NViiy1xA&oe=6696B4DB"
-          alt=""
-        />
+        {isLoading ? (
+          <Skeleton radius="md" className="h-28 min-w-28 md:h-40 md:min-w-40" />
+        ) : (
+          <Image
+            className="h-28 min-w-28 rounded-2xl object-cover md:h-40 md:min-w-40"
+            src={product.data?.image}
+            alt="product image"
+            fallbackSrc={imageFallback}
+          />
+        )}
       </div>
-      <div className="flex flex-col justify-between py-1">
+      <div className="flex w-full flex-col justify-between py-1">
         <div className="flex flex-col">
-          <Text fw={700} className="line-clamp-1 text-xl md:text-2xl">
-            นมถุงรสส้ม
-          </Text>
-          <Text className="line-clamp-2">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Modi
-            mollitia quisquam, voluptatibus obcaecati eius placeat, aspernatur
-            dolorem vitae sequi magnam suscipit. Dolor esse similique iure
-            aspernatur ullam voluptatibus voluptate distinctio.
-          </Text>
+          {isLoading ? (
+            <Skeleton radius="md" className="md:h-[2rem] md:w-[10rem] h-[1.3rem] w-[8rem]" />
+          ) : (
+            <Text fw={700} className="line-clamp-1 text-xl md:text-2xl">
+              {product.data?.name}
+            </Text>
+          )}
+          {isLoading ? (
+            <Skeleton radius="md" className="mt-2 h-[1.3rem] max-w-[20rem]" />
+          ) : (
+            <Text className="line-clamp-2">
+              {htmlToClean(product?.data?.description ?? "")}
+            </Text>
+          )}
         </div>
         <div className="flex flex-col gap-2">
-          <Text fw={700} className="line-clamp-1 text-xl md:text-2xl">
-            500 บาท
-          </Text>
-          <div className="flex">
+          {isLoading ? (
+            <Skeleton radius="md" className="mt-2 h-[1.8rem] w-[5rem]" />
+          ) : (
+            <Text fw={700} className="line-clamp-1 text-xl md:text-2xl">
+              {product.data?.price.toLocaleString("th-TH")} บาท
+            </Text>
+          )}
+          <div className="flex gap-3">
             <ButtonGroup>
-              <Button size="xs" variant="outline">
+              <Button disabled={isLoading} onClick={decreaseQuantity} size="xs" variant="outline">
                 -
               </Button>
-              <Button size="xs" variant="outline">
-                1
+              <Button disabled={isLoading} size="xs" variant="outline" className="text-xl">
+                {props.quantity}
               </Button>
-              <Button size="xs" variant="outline">
+              <Button disabled={isLoading} onClick={increaseQuantity} size="xs" variant="outline">
                 +
               </Button>
             </ButtonGroup>
+            <Button color="red" disabled={isLoading} onClick={deleteItem} size="xs">
+                ลบ
+            </Button>
           </div>
         </div>
       </div>

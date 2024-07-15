@@ -1,13 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, Indicator } from "@mantine/core";
 import { IconShoppingCart } from "@tabler/icons-react";
+import { useLocalStorage } from "usehooks-ts";
+import { type Cart } from "@/types/Cart.type";
+import _ from "lodash";
 
 interface Props {
   type: "desktop" | "mobile";
 }
 
 export default function MenuRender(props: Props) {
+  const [cart, setCart] = useLocalStorage<Cart[]>("cart", []);
   const pathname = usePathname();
 
   interface Menu {
@@ -30,7 +36,7 @@ export default function MenuRender(props: Props) {
       name: "",
       icon: <IconShoppingCart size={20} />,
       route: "/cart",
-      indicatorValue: "10",
+      indicatorValue: _.sumBy(cart, (o) => o.quantity)?.toString(),
     },
   ];
 
@@ -68,7 +74,7 @@ export default function MenuRender(props: Props) {
     );
   } else {
     return (
-      <div className="flex flex-col gap-3 items-center ">
+      <div className="flex flex-col items-center gap-3">
         {menus.map((menu) => (
           <Link key={menu.name} href={menu.route} className="w-full">
             {menu.indicatorValue ? (
