@@ -15,7 +15,7 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
 }
-export default function RichText({ value, onChange, error }: Props) {
+export default function RichText({ value, onChange}: Props) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -51,12 +51,12 @@ export default function RichText({ value, onChange, error }: Props) {
             <RichTextEditor.Code />
           </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
+          {/* <RichTextEditor.ControlsGroup>
             <RichTextEditor.H1 />
             <RichTextEditor.H2 />
             <RichTextEditor.H3 />
             <RichTextEditor.H4 />
-          </RichTextEditor.ControlsGroup>
+          </RichTextEditor.ControlsGroup> */}
 
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.Blockquote />
