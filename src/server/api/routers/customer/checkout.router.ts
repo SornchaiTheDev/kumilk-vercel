@@ -1,5 +1,7 @@
-import { publicProcedure } from "@/server/api/trpc";
+import { publicProcedure, router } from "@/server/api/trpc";
 import type { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 type OrderItem = Prisma.OrderItemGetPayload<{
@@ -22,39 +24,44 @@ const checkoutSchema = z.object({
   items: z.array(itemSchema).min(1),
 });
 
-export const checkoutProcedure = publicProcedure
-  .input(checkoutSchema)
-  .mutation(async ({ ctx, input }) => {
-    const { email, total, items } = input;
+export const checkoutProcedure = router({
+  createOrder: publicProcedure
+    .input(checkoutSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { email, total, items } = input;
 
-    const moddedItems: OrderItem[] = items.map(({ name, price, quantity }) => ({
-      productName: name,
-      productPrice: price,
-      quantity,
-    }));
+      const moddedItems: OrderItem[] = items.map(
+        ({ name, price, quantity }) => ({
+          productName: name,
+          productPrice: price,
+          quantity,
+        }),
+      );
 
-    try {
-      await ctx.db.orderHistory.create({
-        data: {
-          isPaid: false,
-          date: new Date(),
-          total,
-          customer: {
-            connectOrCreate: {
-              where: {
-                email,
+      try {
+        const order = await ctx.db.orderHistory.create({
+          data: {
+            isPaid: false,
+            date: new Date(),
+            total,
+            customer: {
+              connectOrCreate: {
+                where: {
+                  email,
+                },
+                create: {
+                  email,
+                },
               },
-              create: {
-                email,
+            },
+            items: {
+              createMany: {
+                data: moddedItems,
               },
             },
           },
-          items: {
-            createMany: {
-              data: moddedItems,
-            },
-          },
-        },
-      });
-    } catch (err) {}
-  });
+        });
+        return order.id;
+      } catch (err) {}
+    }),
+});
