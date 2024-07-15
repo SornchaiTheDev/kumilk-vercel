@@ -1,7 +1,5 @@
 import { publicProcedure, router } from "@/server/api/trpc";
 import type { Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 type OrderItem = Prisma.OrderItemGetPayload<{
