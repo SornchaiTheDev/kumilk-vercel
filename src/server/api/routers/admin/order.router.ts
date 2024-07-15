@@ -1,4 +1,6 @@
 import { adminRoute, router } from "@/server/api/trpc";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 export const orderRouter = router({
   list: adminRoute
@@ -47,5 +49,37 @@ export const orderRouter = router({
         }),
       ]);
       return { histories, pageCount: Math.ceil(count / limit) };
+    }),
+  accept: adminRoute
+    .input(
+      z.object({
+        orderId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { orderId } = input;
+      try {
+        await ctx.db.orderHistory.update({
+          where: {
+            id: orderId,
+          },
+          data: {
+            isPaid: true,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError) {
+          if (err.code === "P2005") {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "ORDER_NOT_FOUND",
+            });
+          }
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
     }),
 });
