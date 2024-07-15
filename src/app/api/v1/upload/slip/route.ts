@@ -1,6 +1,5 @@
 import { uploadFile } from "@/libs/uploadFile";
 import { db } from "@/server/db";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export const POST = async (req: Request) => {
   try {
