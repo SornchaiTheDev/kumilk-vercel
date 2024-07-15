@@ -5,6 +5,7 @@ import { sanitize } from "isomorphic-dompurify";
 import { Button, ButtonGroup, Image, Skeleton, Text } from "@mantine/core";
 import { useLocalStorage } from "usehooks-ts";
 import { imageFallback } from "@/utils/imageFallback";
+import Link from "next/link";
 
 type Props = Cart;
 
@@ -37,7 +38,6 @@ export default function CartItem(props: Props) {
     setCart((prev) => {
       return prev.map((item) => {
         if (item.quantity - 1 === 0) {
-          deleteItem();
           return item;
         }
         if (item.id === props.id) {
@@ -76,11 +76,19 @@ export default function CartItem(props: Props) {
       <div className="flex w-full flex-col justify-between py-1">
         <div className="flex flex-col">
           {isLoading ? (
-            <Skeleton radius="md" className="md:h-[2rem] md:w-[10rem] h-[1.3rem] w-[8rem]" />
+            <Skeleton
+              radius="md"
+              className="h-[1.3rem] w-[8rem] md:h-[2rem] md:w-[10rem]"
+            />
           ) : (
-            <Text fw={700} className="line-clamp-1 text-xl md:text-2xl">
-              {product.data?.name}
-            </Text>
+            <Link href={`/product/${props.id}`}>
+              <Text
+                fw={700}
+                className="line-clamp-1 cursor-pointer text-xl hover:text-blue-500 hover:underline md:text-2xl"
+              >
+                {product.data?.name}
+              </Text>
+            </Link>
           )}
           {isLoading ? (
             <Skeleton radius="md" className="mt-2 h-[1.3rem] max-w-[20rem]" />
@@ -100,18 +108,38 @@ export default function CartItem(props: Props) {
           )}
           <div className="flex gap-3">
             <ButtonGroup>
-              <Button disabled={isLoading} onClick={decreaseQuantity} size="xs" variant="outline">
+              <Button
+                disabled={isLoading}
+                onClick={decreaseQuantity}
+                size="xs"
+                variant="outline"
+              >
                 -
               </Button>
-              <Button disabled={isLoading} size="xs" variant="outline" className="text-xl">
+              <Button
+                disabled={isLoading}
+                size="xs"
+                variant="outline"
+                className="text-xl"
+              >
                 {props.quantity}
               </Button>
-              <Button disabled={isLoading} onClick={increaseQuantity} size="xs" variant="outline">
+              <Button
+                disabled={isLoading}
+                onClick={increaseQuantity}
+                size="xs"
+                variant="outline"
+              >
                 +
               </Button>
             </ButtonGroup>
-            <Button color="red" disabled={isLoading} onClick={deleteItem} size="xs">
-                ลบ
+            <Button
+              color="red"
+              disabled={isLoading}
+              onClick={deleteItem}
+              size="xs"
+            >
+              ลบ
             </Button>
           </div>
         </div>

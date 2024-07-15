@@ -1,11 +1,10 @@
 "use client";
 import { Button, Divider, Skeleton, Text } from "@mantine/core";
-import CartItem from "./components/molecules/CartItem";
+import CartItem from "./_components/molecules/CartItem";
 import { useLocalStorage, useMediaQuery } from "usehooks-ts";
 import { type Cart } from "@/types/Cart.type";
 import { useEffect } from "react";
 import { api } from "@/trpc/react";
-import { IconMoodEmpty } from "@tabler/icons-react";
 
 export default function CartPage() {
   const isMobile = useMediaQuery("(max-width: 768px)");
