@@ -82,4 +82,33 @@ export const orderRouter = router({
         });
       }
     }),
+  reject: adminRoute
+    .input(
+      z.object({
+        orderId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { orderId } = input;
+      try {
+        await ctx.db.orderHistory.delete({
+          where: {
+            id: orderId,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError) {
+          if (err.code === "P2005") {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "ORDER_NOT_FOUND",
+            });
+          }
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
+    }),
 });
