@@ -111,4 +111,52 @@ export const orderRouter = router({
         });
       }
     }),
+  scan: adminRoute
+    .input(z.object({ orderId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const order = await ctx.db.orderHistory.findUnique({
+          where: {
+            id: input.orderId,
+          },
+          select: {
+            isDone: true,
+          },
+        });
+
+        if (order?.isDone) {
+          throw new Error("ALREADY_DONE");
+        }
+
+        await ctx.db.orderHistory.update({
+          where: {
+            id: input.orderId,
+          },
+          data: {
+            isDone: true,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError) {
+          if (err.code === "P2005") {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "ORDER_NOT_FOUND",
+            });
+          }
+        }
+
+        if (err instanceof Error) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: err.message,
+          });
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
+    }),
 });
