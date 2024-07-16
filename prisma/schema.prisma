@@ -21,6 +21,7 @@ model Product {
     quantity    Int
     price       Float
     image       String
+    isVisible   Boolean   @default(true)
     createdAt   DateTime  @default(now())
     updatedAt   DateTime?
 
