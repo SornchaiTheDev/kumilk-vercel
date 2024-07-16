@@ -173,7 +173,7 @@ export default function ProductsPage() {
   }
   const openEditModal = (product: editProductType) => {
     console.log(product);
-
+    
     setProductData(product);
     setEditMode(true);
     open();
@@ -223,21 +223,21 @@ export default function ProductsPage() {
       <Table.Td>{element.price}</Table.Td>
       <Table.Td>
         <MantineProvider theme={theme}>
-          {/* <Switch
+          <Switch
             style={
               //cursor: pointer
               { cursorType: "pointer" }
             }
-            checked={!!element.status}
+            checked={!!element.isVisible}
             onChange={(event) => {
               console.log(event.target.checked, element.id);
-              //get id and status
+              //get id and isVisible
             }}
             color="teal"
             size="sm"
             // label="Switch with thumb icon"
             thumbIcon={
-              !!element.status ? (
+              !!element.isVisible ? (
                 <IconCheck
                   style={{ width: rem(12), height: rem(12) }}
                   color={"red"}
@@ -251,7 +251,7 @@ export default function ProductsPage() {
                 />
               )
             }
-          /> */}
+          />
         </MantineProvider>
       </Table.Td>
       <Table.Td className="">
@@ -262,7 +262,6 @@ export default function ProductsPage() {
             onClick={() => {
               openEditModal({
                 ...element,
-                status: false,
               });
             }}
           >

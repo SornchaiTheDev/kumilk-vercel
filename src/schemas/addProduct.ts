@@ -11,7 +11,12 @@ export const addProductSchema = z.object({
     .min(1, { message: "ราคาสินค้าต้องมากกว่า 0" }),
   image: z.string().min(1, { message: "กรุณาเลือกรูปภาพสินค้า" }),
   description: z.string().optional(),
-  status: z.preprocess((val) => val === "true", z.boolean()),
+  isVisible: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return val === "true";
+    }
+    return val;
+  }, z.boolean()),
 });
 
 export type addProductType = z.infer<typeof addProductSchema>;

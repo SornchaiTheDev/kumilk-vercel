@@ -19,6 +19,7 @@ export const productRouter = router({
             quantity: input.quantity,
             price: input.price,
             image: input.image,
+            isVisible: input.isVisible,
           },
         });
         return product;
@@ -39,6 +40,8 @@ export const productRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { id, name, description, quantity, price, image, isVisible } =
         input;
+        console.log(input);
+        
       try {
         const product = await ctx.db.product.update({
           where: {

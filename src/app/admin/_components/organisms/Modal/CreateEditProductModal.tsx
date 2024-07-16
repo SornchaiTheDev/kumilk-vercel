@@ -75,8 +75,8 @@ export default function CreateEditProductModal({
           ? productData.description
           : ``,
       image: mode === "edit" && productData ? productData.image : "",
-      status:
-        mode === "edit" && productData ? productData.status.toString() : "true",
+      isVisible:
+        mode === "edit" && productData ? productData.isVisible.toString() : "true",
       id: "",
     },
     validate: zodResolver(
@@ -112,10 +112,9 @@ export default function CreateEditProductModal({
       mode === "edit" && productData ? productData.image : "",
     );
     form.setFieldValue(
-      "status",
-      mode === "edit" && productData ? productData.status.toString() : "true",
+      "isVisible",
+      mode === "edit" && productData ? productData.isVisible.toString() : "true",
     );
-    console.log(form.values.description);
 
     if (mode === "edit" && productData) {
       setPreviewUrl({
@@ -186,7 +185,7 @@ export default function CreateEditProductModal({
         ...values,
         price: Number(values.price),
         quantity: Number(values.quantity),
-        status: String(values.status).toLowerCase() === "true",
+        isVisible: String(values.isVisible).toLowerCase() === "true",
       } as addProductType;
 
       if (mode === "edit") {
@@ -350,10 +349,8 @@ export default function CreateEditProductModal({
             <Input.Wrapper label="สถานะสินค้า">
               <Select
                 placeholder="เลือกสถานะสินค้า"
-                {...form.getInputProps("status")}
+                {...form.getInputProps("isVisible")}
                 allowDeselect={false}
-                defaultValue={"true"}
-                datatype="boolean"
                 data={[
                   {
                     label: "แสดงสินค้า",
