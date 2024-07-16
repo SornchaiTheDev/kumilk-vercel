@@ -4,6 +4,8 @@ import { adminRoute, router } from "@/server/api/trpc";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import * as Minio from "minio";
+import { env } from "@/env";
 
 export const productRouter = router({
   create: adminRoute
@@ -74,6 +76,23 @@ export const productRouter = router({
             id,
           },
         });
+
+        if (product !== null) {
+          const objectName = product.image.split("ku-milk/")[1] ?? "";
+
+          const client = new Minio.Client({
+            endPoint: env.MINIO_ENDPOINT,
+            port: parseInt(env.MINIO_PORT),
+            useSSL: Boolean(env.MINIO_SSL),
+            accessKey: env.MINIO_ACCESS_KEY,
+            secretKey: env.MINIO_SECRET_KEY,
+          });
+
+          const bucketName = "ku-milk";
+
+          await client.removeObject(bucketName, objectName);
+        }
+
         return product;
       } catch (err) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
@@ -84,14 +103,40 @@ export const productRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { ids } = input;
       try {
-        const product = await ctx.db.product.deleteMany({
+        const products = await ctx.db.product.findMany({
           where: {
             id: {
               in: ids,
             },
           },
         });
-        return product;
+
+        for (const product of products) {
+          const objectName = product.image.split("ku-milk/")[1] ?? "";
+        console.log(objectName)
+
+          const client = new Minio.Client({
+            endPoint: env.MINIO_ENDPOINT,
+            port: parseInt(env.MINIO_PORT),
+            useSSL: Boolean(env.MINIO_SSL),
+            accessKey: env.MINIO_ACCESS_KEY,
+            secretKey: env.MINIO_SECRET_KEY,
+          });
+
+          const bucketName = "ku-milk";
+
+          await client.removeObject(bucketName, objectName);
+        }
+
+        await ctx.db.product.deleteMany({
+          where: {
+            id: {
+              in: ids,
+            },
+          },
+        });
+
+        return "success";
       } catch (err) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }

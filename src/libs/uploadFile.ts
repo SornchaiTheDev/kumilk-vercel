@@ -22,7 +22,7 @@ export const uploadFile = async (formData: FormData, objectDir = "public/") => {
   const file = files[0]!;
   const buffer = Buffer.from(await file.arrayBuffer());
   const resizedBuffer = await reduceImageSize({ buffer });
-  const objectName = file.name;
+  const objectName = Date.now() + "_" + file.name;
   const objectPath = objectDir + objectName;
   const fileType = file.type;
 
