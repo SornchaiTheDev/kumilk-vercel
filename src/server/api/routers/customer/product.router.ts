@@ -43,6 +43,7 @@ export const productRouter = router({
             name: {
               contains: search,
             },
+            isVisible: true,
           },
           select: {
             id: true,
@@ -70,6 +71,7 @@ export const productRouter = router({
             name: {
               contains: search,
             },
+            isVisible: true,
           },
           select: {
             id: true,
