@@ -74,14 +74,23 @@ export const productRouter = router({
         });
         return product;
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError) {
-          if (err.code === "P2002") {
-            throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: "PRODUCT_ALREADY_EXIST",
-            });
-          }
-        }
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
+    }),
+  deleteMany: adminRoute
+    .input(z.object({ ids: z.string().array() }))
+    .mutation(async ({ ctx, input }) => {
+      const { ids } = input;
+      try {
+        const product = await ctx.db.product.deleteMany({
+          where: {
+            id: {
+              in: ids,
+            },
+          },
+        });
+        return product;
+      } catch (err) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
