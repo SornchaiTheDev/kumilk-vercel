@@ -3,7 +3,7 @@ import { publicProcedure, router } from "../../trpc";
 import { z } from "zod";
 
 export const productRouter = router({
-  getByName: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+  getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     try {
       const product = await ctx.db.product.findFirst({
         where: {

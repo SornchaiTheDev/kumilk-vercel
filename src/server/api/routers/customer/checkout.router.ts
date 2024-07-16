@@ -1,5 +1,6 @@
 import { publicProcedure, router } from "@/server/api/trpc";
 import type { Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 type OrderItem = Prisma.OrderItemGetPayload<{
@@ -10,13 +11,13 @@ type OrderItem = Prisma.OrderItemGetPayload<{
   };
 }>;
 
-const itemSchema = z.object({
+export const itemSchema = z.object({
   name: z.string(),
   price: z.number().min(1),
   quantity: z.number().min(1),
 });
 
-const checkoutSchema = z.object({
+export const checkoutSchema = z.object({
   email: z.string().email(),
   total: z.number().min(1),
   items: z.array(itemSchema).min(1),
@@ -61,5 +62,23 @@ export const checkoutProcedure = router({
         });
         return order.id;
       } catch (err) {}
+    }),
+  orderDetail: publicProcedure
+    .input(z.object({ orderId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { orderId } = input;
+      try {
+        const item = await ctx.db.orderHistory.findUnique({
+          where: {
+            id: orderId,
+          },
+        });
+        return item;
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
     }),
 });

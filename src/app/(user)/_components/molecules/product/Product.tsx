@@ -9,6 +9,7 @@ import { type inferRouterOutputs } from "@trpc/server";
 import { sanitize } from "isomorphic-dompurify";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type PropsType = UseTRPCQueryResult<
   inferRouterOutputs<AppRouter>["customer"]["product"]["list"],

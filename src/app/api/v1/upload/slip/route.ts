@@ -5,6 +5,8 @@ export const POST = async (req: Request) => {
   try {
     const formData = await req.formData();
     const orderId = formData.get("orderId");
+    console.log(orderId);
+    
 
     if (typeof orderId != "string") {
       throw new Error("BAD_REQUEST");
