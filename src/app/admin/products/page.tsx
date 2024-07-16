@@ -16,6 +16,7 @@ import {
   createTheme,
   MantineProvider,
   Modal,
+  Text,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import Th from "../_components/molecules/Table/Th";
@@ -33,6 +34,7 @@ import { api } from "@/trpc/react";
 import { addProductType } from "@/schemas/addProduct";
 import { notifications } from "@mantine/notifications";
 import { editProductType, ProductType } from "@/schemas/editProduct";
+import { modals } from "@mantine/modals";
 
 interface RowData {
   name: string;
@@ -51,6 +53,8 @@ export default function ProductsPage() {
   const [productData, setProductData] = useState<editProductType | null>(null);
   const adminCreateProductApi = api.admin.product.create.useMutation();
   const adminEditProductApi = api.admin.product.update.useMutation();
+  const adminDeleteProductApi = api.admin.product.delete.useMutation();
+  const adminDeleteManyProductApi = api.admin.product.deleteMany.useMutation();
   const getAllProductApi = api.admin.product.list.useQuery({
     search: "",
   });
@@ -84,21 +88,103 @@ export default function ProductsPage() {
       console.log(err);
     }
   };
-  
+
+  const onDeleteProduct = (id: string) => {
+    try {
+      const handleConfirm = async () => {
+        try {
+          await adminDeleteProductApi.mutateAsync({ id });
+          notifications.show({
+            title: "ลบรายการสินค้าสำเร็จ",
+            message: "สินค้าถูกลบออกจากระบบแล้ว",
+            color: "green",
+          });
+          getAllProductApi.refetch();
+          return;
+        } catch (err) {
+          notifications.show({
+            title: "เกิดข้อผิดพลาด",
+            message: "ไม่สามารถลบข้อมูลสินค้าได้",
+            color: "red",
+          });
+        }
+      };
+
+      modals.openConfirmModal({
+        title: "ยืนยันการลบรายการสินค้า",
+        children: (
+          <Text size="sm">คุณแน่ใจหรือไม่ที่จะลบรายการสินค้านี้ออกจากระบบ</Text>
+        ),
+        labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
+        onConfirm: (): void => {
+          handleConfirm();
+        },
+      });
+    } catch (err) {
+      notifications.show({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถลบข้อมูลสินค้าได้",
+        color: "red",
+      });
+      console.log(err);
+    }
+  };
+
+  const onDeleteManyProduct = () => {
+    try {
+      const handleConfirm = async () => {
+        try {
+          await adminDeleteManyProductApi.mutateAsync({ ids: selectedRows });
+          notifications.show({
+            title: "ลบรายการสินค้าสำเร็จ",
+            message: "สินค้าถูกลบออกจากระบบแล้ว",
+            color: "green",
+          });
+          getAllProductApi.refetch();
+          setSelectedRows([]);
+          return;
+        } catch (err) {
+          notifications.show({
+            title: "เกิดข้อผิดพลาด",
+            message: "ไม่สามารถลบข้อมูลสินค้าได้",
+            color: "red",
+          });
+        }
+      };
+
+      modals.openConfirmModal({
+        title: "ยืนยันการลบรายการสินค้า",
+        children: (
+          <Text size="sm">คุณแน่ใจหรือไม่ที่จะลบรายการสินค้านี้ออกจากระบบ</Text>
+        ),
+        labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
+        onConfirm: (): void => {
+          handleConfirm();
+        },
+      });
+    } catch (err) {
+      notifications.show({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถลบข้อมูลสินค้าได้",
+        color: "red",
+      });
+      console.log(err);
+    }
+  }
   const openEditModal = (product: editProductType) => {
     console.log(product);
-    
+
     setProductData(product);
     setEditMode(true);
     open();
   };
+
   const openCreateModal = () => {
     setEditMode(false);
     setProductData(null);
     open();
   };
 
- 
   const theme = createTheme({
     cursorType: "pointer",
   });
@@ -170,15 +256,27 @@ export default function ProductsPage() {
       </Table.Td>
       <Table.Td className="">
         <Group justify="center">
-          <ActionIcon variant="filled" aria-label="Edit" onClick={()=> {
-            openEditModal({
-              ...element,
-              status: false
-            });
-          }} > {/*onClick={() =>{} }} */}
+          <ActionIcon
+            variant="filled"
+            aria-label="Edit"
+            onClick={() => {
+              openEditModal({
+                ...element,
+                status: false,
+              });
+            }}
+          >
+            {" "}
+            {/*onClick={() =>{} }} */}
             <IconPencil size={19} stroke={1.5} />
           </ActionIcon>
-          <ActionIcon color="red" aria-label="Delete">
+          <ActionIcon
+            color="red"
+            aria-label="Delete"
+            onClick={() => {
+              onDeleteProduct(element.id);
+            }}
+          >
             <IconTrash size={19} stroke={1.5} />
           </ActionIcon>
         </Group>
@@ -207,13 +305,18 @@ export default function ProductsPage() {
       <div className="flex flex-col gap-3">
         <div className="flex flex-col justify-between gap-3 lg:flex-row">
           <div className="inline-flex gap-2">
-            <Button color="green" variant="light" className="" onClick={()=>{
-              openCreateModal();
-            }}>
+            <Button
+              color="green"
+              variant="light"
+              className=""
+              onClick={() => {
+                openCreateModal();
+              }}
+            >
               เพิ่มสินค้า
             </Button>
             {selectedRows.length > 0 && (
-              <Button color="red" variant="filled">
+              <Button color="red" variant="filled" onClick={onDeleteManyProduct}>
                 ลบ
               </Button>
             )}
