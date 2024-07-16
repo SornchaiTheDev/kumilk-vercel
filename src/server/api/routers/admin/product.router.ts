@@ -1,5 +1,3 @@
-import { addProductSchema } from "@/schemas/addProduct";
-import { editProductSchema } from "@/schemas/editProduct";
 import { adminRoute, router } from "@/server/api/trpc";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
@@ -14,15 +12,11 @@ const productSchema = z.object({
 });
 
 export const productRouter = router({
-  create: adminRoute.input(addProductSchema).mutation(async ({ ctx, input }) => {
+  create: adminRoute.input(productSchema).mutation(async ({ ctx, input }) => {
     try {
       const product = await ctx.db.product.create({
         data: {
-          name: input.name,
-          description: input.description ?? "",
-          quantity: input.quantity,
-          price: input.price,
-          image: input.image,
+          ...input,
         },
       });
       return product;
@@ -39,7 +33,7 @@ export const productRouter = router({
     }
   }),
   update: adminRoute
-    .input(editProductSchema)
+    .input(productSchema.and(z.object({ id: z.string() })))
     .mutation(async ({ ctx, input }) => {
       const { id, name, description, quantity, price, image } = input;
       try {
