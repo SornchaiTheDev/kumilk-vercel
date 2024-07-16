@@ -39,6 +39,7 @@ model Customer {
 model OrderHistory {
     id         String      @id @default(cuid())
     isPaid     Boolean
+    isDone     Boolean     @default(false)
     slipImage  String?
     date       DateTime
     total      Float
