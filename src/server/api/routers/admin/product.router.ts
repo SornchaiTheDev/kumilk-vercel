@@ -186,6 +186,9 @@ export const productRouter = router({
               contains: search,
             },
           },
+          orderBy: {
+            createdAt: "desc",
+          },
         });
         return products;
       } catch (err) {
