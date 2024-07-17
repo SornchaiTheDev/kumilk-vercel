@@ -55,6 +55,8 @@ export default function ProductsPage() {
   const adminEditProductApi = api.admin.product.update.useMutation();
   const adminDeleteProductApi = api.admin.product.delete.useMutation();
   const adminDeleteManyProductApi = api.admin.product.deleteMany.useMutation();
+  const adminToggleVisibleProductApi =
+    api.admin.product.toggleVisible.useMutation();
   const getAllProductApi = api.admin.product.list.useQuery({
     search: "",
   });
@@ -93,7 +95,9 @@ export default function ProductsPage() {
     try {
       const handleConfirm = async () => {
         try {
-          await adminDeleteProductApi.mutateAsync({ id });
+          await adminDeleteProductApi.mutateAsync({
+            id,
+          });
           notifications.show({
             title: "ลบรายการสินค้าสำเร็จ",
             message: "สินค้าถูกลบออกจากระบบแล้ว",
@@ -170,10 +174,93 @@ export default function ProductsPage() {
       });
       console.log(err);
     }
-  }
+  };
+
+  const onToggleVisible = (id: string) => {
+    try {
+      const handleConfirm = async () => {
+        try {
+          await adminToggleVisibleProductApi.mutateAsync({ ids: [id] });
+          notifications.show({
+            title: "เปลี่ยนสถานะสินค้าสำเร็จ",
+            message: "สถานะสินค้าถูกเปลี่ยนแปลงแล้ว",
+            color: "green",
+          });
+          getAllProductApi.refetch();
+          return;
+        } catch (err) {
+          notifications.show({
+            title: "เกิดข้อผิดพลาด",
+            message: "ไม่สามารถเปลี่ยนสถานะสินค้าได้",
+            color: "red",
+          });
+        }
+      };
+
+      modals.openConfirmModal({
+        title: "ยืนยันการเปลี่ยนสถานะสินค้า",
+        children: (
+          <Text size="sm">คุณแน่ใจหรือไม่ที่จะเปลี่ยนสถานะสินค้านี้</Text>
+        ),
+        labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
+        onConfirm: (): void => {
+          handleConfirm();
+        },
+      });
+    } catch (err) {
+      notifications.show({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถเปลี่ยนสถานะสินค้าได้",
+        color: "red",
+      });
+      console.log(err);
+    }
+  };
+
+  const onToggleManyVisible = () => {
+    try {
+      const handleConfirm = async () => {
+        try {
+          await adminToggleVisibleProductApi.mutateAsync({ ids: selectedRows });
+          notifications.show({
+            title: "เปลี่ยนสถานะสินค้าสำเร็จ",
+            message: "สถานะสินค้าถูกเปลี่ยนแปลงแล้ว",
+            color: "green",
+          });
+          getAllProductApi.refetch();
+          return;
+        } catch (err) {
+          notifications.show({
+            title: "เกิดข้อผิดพลาด",
+            message: "ไม่สามารถเปลี่ยนสถานะสินค้าได้",
+            color: "red",
+          });
+        }
+      };
+
+      modals.openConfirmModal({
+        title: "ยืนยันการเปลี่ยนสถานะสินค้า",
+        children: (
+          <Text size="sm">คุณแน่ใจหรือไม่ที่จะเปลี่ยนสถานะสินค้านี้</Text>
+        ),
+        labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
+        onConfirm: (): void => {
+          handleConfirm();
+        },
+      });
+    } catch (err) {
+      notifications.show({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถเปลี่ยนสถานะสินค้าได้",
+        color: "red",
+      });
+      console.log(err);
+    }
+  };
+
   const openEditModal = (product: editProductType) => {
     console.log(product);
-    
+
     setProductData(product);
     setEditMode(true);
     open();
@@ -221,6 +308,7 @@ export default function ProductsPage() {
       </Table.Td>
       <Table.Td>{element.name}</Table.Td>
       <Table.Td>{element.price}</Table.Td>
+      <Table.Td>{element.quantity}</Table.Td>
       <Table.Td>
         <MantineProvider theme={theme}>
           <Switch
@@ -229,9 +317,8 @@ export default function ProductsPage() {
               { cursorType: "pointer" }
             }
             checked={!!element.isVisible}
-            onChange={(event) => {
-              console.log(event.target.checked, element.id);
-              //get id and isVisible
+            onChange={() => {
+              onToggleVisible(element.id);
             }}
             color="teal"
             size="sm"
@@ -314,11 +401,24 @@ export default function ProductsPage() {
             >
               เพิ่มสินค้า
             </Button>
-            {selectedRows.length > 0 && (
-              <Button color="red" variant="filled" onClick={onDeleteManyProduct}>
-                ลบ
-              </Button>
-            )}
+            {selectedRows.length > 0 ? (
+              <>
+                <Button
+                  color="blue"
+                  variant="filled"
+                  onClick={onToggleManyVisible}
+                >
+                  เปลี่ยนสถานะ
+                </Button>
+                <Button
+                  color="red"
+                  variant="filled"
+                  onClick={onDeleteManyProduct}
+                >
+                  ลบ
+                </Button>
+              </>
+            ) : null}
             <div className="ml-auto lg:hidden">
               <Select
                 placeholder="Select items per page"
@@ -365,7 +465,23 @@ export default function ProductsPage() {
           <Table verticalSpacing="xs" miw={700} layout="fixed">
             <Table.Thead>
               <Table.Tr>
-                <Th />
+                <Th>
+                  <Checkbox
+                    aria-label="Select all rows"
+                    checked={
+                      selectedRows.length === getAllProductApi.data?.length
+                    }
+                    onChange={(event) =>
+                      setSelectedRows(
+                        event.currentTarget.checked
+                          ? (getAllProductApi.data?.map(
+                              (element) => element.id,
+                            ) ?? [])
+                          : [],
+                      )
+                    }
+                  />
+                </Th>
                 <Th>รูปสินค้า</Th>
                 <Th
                   sorted={sortBy === "name"}
@@ -381,7 +497,8 @@ export default function ProductsPage() {
                 >
                   ราคา/บาท
                 </Th>
-                <Th>สถานะ</Th>
+                <Th>คงเหลือ</Th>
+                <Th>แสดงสินค้า</Th>
                 <Th>เครื่องมือ</Th>
               </Table.Tr>
             </Table.Thead>
