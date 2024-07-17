@@ -40,8 +40,8 @@ export const productRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { id, name, description, quantity, price, image, isVisible } =
         input;
-        console.log(input);
-        
+      console.log(input);
+
       try {
         const product = await ctx.db.product.update({
           where: {
@@ -116,7 +116,7 @@ export const productRouter = router({
 
         for (const product of products) {
           const objectName = product.image.split("ku-milk/")[1] ?? "";
-        console.log(objectName)
+          console.log(objectName);
 
           const client = new Minio.Client({
             endPoint: env.MINIO_ENDPOINT,
@@ -140,6 +140,37 @@ export const productRouter = router({
         });
 
         return "success";
+      } catch (err) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
+    }),
+  toggleVisible: adminRoute
+    .input(z.object({ ids: z.string().array() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const products = await ctx.db.product.findMany({
+          where: {
+            id: {
+              in: input.ids,
+            },
+          },
+        });
+
+        const updatedProducts = products.map(({ id, isVisible }) => ({
+          id,
+          isVisible: !isVisible,
+        }));
+
+        for (const { id, isVisible } of updatedProducts) {
+          await ctx.db.product.update({
+            where: {
+              id,
+            },
+            data: {
+              isVisible,
+            },
+          });
+        }
       } catch (err) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
