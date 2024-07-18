@@ -12,43 +12,46 @@ export const orderRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { page, limit, search } = input;
-      const [histories, count] = await ctx.db.$transaction([
-        ctx.db.orderHistory.findMany({
-          where: {
-            OR: [
-              {
-                customer: {
-                  email: search,
-                },
+      try {
+        const { page, limit, search } = input;
+        const [histories, count] = await ctx.db.$transaction([
+          ctx.db.orderHistory.findMany({
+            where: {
+              customer: {
+                email: search,
               },
-            ],
-          },
-          take: limit,
-          skip: page * limit,
-          orderBy: {
-            date: "desc",
-          },
-          include: {
-            items: true,
-          },
-        }),
-        ctx.db.orderHistory.count({
-          where: {
-            OR: [
-              {
-                customer: {
-                  email: search,
+            },
+            take: limit,
+            skip: page * limit,
+            orderBy: {
+              date: "desc",
+            },
+            include: {
+              items: true,
+            },
+          }),
+          ctx.db.orderHistory.count({
+            where: {
+              OR: [
+                {
+                  customer: {
+                    email: search,
+                  },
                 },
-              },
-            ],
-          },
-          orderBy: {
-            date: "desc",
-          },
-        }),
-      ]);
-      return { histories, pageCount: Math.ceil(count / limit) };
+              ],
+            },
+            orderBy: {
+              date: "desc",
+            },
+          }),
+        ]);
+        return { histories, pageCount: Math.ceil(count / limit) };
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
     }),
   accept: adminRoute
     .input(
