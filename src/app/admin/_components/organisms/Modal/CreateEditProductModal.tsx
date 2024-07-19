@@ -38,6 +38,7 @@ interface Props {
   close: () => void;
   onSubmit?: (data: ProductType) => void;
   productData: editProductType | undefined | null;
+  loading?: boolean;
 }
 
 interface previewImage {
@@ -58,6 +59,7 @@ export default function CreateEditProductModal({
   close,
   onSubmit,
   productData,
+  loading,
 }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<previewImage | null>(null);
@@ -366,7 +368,7 @@ export default function CreateEditProductModal({
           </div>
         </div>
         <Group mt="md" justify="right">
-          <Button type="submit">
+          <Button type="submit" loading={loading}>
             {mode === "create" ? "เพิ่มสินค้า" : "แก้ไขสินค้า"}
           </Button>
         </Group>
