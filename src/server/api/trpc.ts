@@ -103,4 +103,12 @@ const adminMiddleware = t.middleware(async ({ ctx, next }) => {
   return next();
 });
 
+const customerMiddleware = t.middleware(async ({ ctx, next }) => {
+  const isAuthed = ctx.session !== null;
+  if (!isAuthed) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  return next();
+});
+
 export const adminRoute = t.procedure.use(adminMiddleware);
+export const customerRoute = t.procedure.use(customerMiddleware);

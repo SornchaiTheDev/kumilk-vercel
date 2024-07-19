@@ -48,6 +48,7 @@
     "@trpc/react-query": "^11.0.0-rc.446",
     "@trpc/server": "^11.0.0-rc.446",
     "axios": "^1.7.2",
+    "bcrypt": "^5.1.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
     "embla-carousel-react": "^8.1.6",
@@ -77,6 +78,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/eslint": "^8.56.10",
     "@types/formidable": "^3.4.5",
     "@types/lodash": "^4.17.6",
