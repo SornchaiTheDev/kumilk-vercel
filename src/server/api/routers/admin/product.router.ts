@@ -176,21 +176,41 @@ export const productRouter = router({
       }
     }),
   list: adminRoute
-    .input(z.object({ search: z.string().optional() }))
+    .input(
+      z.object({
+        page: z.number().default(1),
+        limit: z.number().default(10),
+        search: z.string().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const { search } = input;
       try {
-        const products = await ctx.db.product.findMany({
-          where: {
-            name: {
-              contains: search,
+        const { page, limit, search } = input;
+        const [products, count] = await ctx.db.$transaction([
+          ctx.db.product.findMany({
+            where: {
+              name: {
+                contains: search,
+              },
             },
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
-        return products;
+            take: limit,
+            skip: page * limit,
+            orderBy: {
+              createdAt: "desc",
+            },
+          }),
+          ctx.db.product.count({
+            where: {
+              name: {
+                contains: search,
+              },
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          }),
+        ]);
+        return { products, pageCount: Math.ceil(count / limit) };
       } catch (err) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
