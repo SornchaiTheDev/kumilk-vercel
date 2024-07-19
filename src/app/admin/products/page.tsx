@@ -1,52 +1,36 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
 "use client";
 
+import { type addProductType } from "@/schemas/addProduct";
+import { type editProductType, type ProductType } from "@/schemas/editProduct";
+import { api } from "@/trpc/react";
 import {
-  Checkbox,
-  ScrollArea,
-  Table,
-  Button,
   ActionIcon,
-  Group,
-  Pagination,
-  Select,
-  Input,
-  Switch,
-  rem,
+  Button,
   createTheme,
+  Group,
+  Input,
   MantineProvider,
-  Modal,
+  Select,
+  Switch,
   Text,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
-import Th from "../_components/molecules/Table/Th";
-import {
-  IconCheck,
-  IconPencil,
-  IconSearch,
-  IconTrash,
-  IconX,
-} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import CreateProduct from "../_components/organisms/createProduct/CreateProduct";
-import CreateEditProductModal from "../_components/organisms/Modal/CreateEditProductModal";
-import { api } from "@/trpc/react";
-import { addProductType } from "@/schemas/addProduct";
-import { notifications } from "@mantine/notifications";
-import { editProductType, ProductType } from "@/schemas/editProduct";
 import { modals } from "@mantine/modals";
-
+import { notifications } from "@mantine/notifications";
+import { IconPencil, IconSearch, IconTrash } from "@tabler/icons-react";
+import { DataTable, DataTableSortStatus } from "mantine-datatable";
+import { useEffect, useState } from "react";
+import CreateEditProductModal from "../_components/organisms/Modal/CreateEditProductModal";
+import _ from "lodash";
 interface RowData {
   name: string;
   email: string;
   company: string;
 }
-
+const PAGE_SIZES = [10, 15, 20];
 export default function ProductsPage() {
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [reverseSortDirection, setReverseSortDirection] = useState(false);
-  const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
-  const [activePage, setPage] = useState(1);
+  const [activePage, setActivePage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
   const [opened, { close, open }] = useDisclosure(false);
   const [modalKey, setModalKey] = useState(0);
   const [editMode, setEditMode] = useState(false);
@@ -58,8 +42,29 @@ export default function ProductsPage() {
   const adminToggleVisibleProductApi =
     api.admin.product.toggleVisible.useMutation();
   const getAllProductApi = api.admin.product.list.useQuery({
+    page: activePage,
+    limit: pageSize,
     search: "",
   });
+  const [selectedRows, setSelectedRows] = useState<editProductType[]>([]);
+
+  const [sortStatus, setSortStatus] = useState<
+    DataTableSortStatus<editProductType>
+  >({
+    columnAccessor: "name",
+    direction: "asc",
+  });
+  const [records, setRecords] = useState<editProductType[]>(
+    _.sortBy(getAllProductApi.data?.products, "name"),
+  );
+
+  useEffect(() => {
+    const data = _.sortBy(
+      getAllProductApi.data?.products,
+      sortStatus.columnAccessor,
+    ) as editProductType[];
+    setRecords(sortStatus.direction === "desc" ? data.reverse() : data);
+  }, [sortStatus, getAllProductApi.data?.products]);
 
   const handleProductSubmit = async (data: ProductType) => {
     try {
@@ -79,7 +84,7 @@ export default function ProductsPage() {
         });
       }
       close();
-      getAllProductApi.refetch();
+      void getAllProductApi.refetch();
       setModalKey((prev) => prev + 1);
     } catch (err) {
       notifications.show({
@@ -103,7 +108,7 @@ export default function ProductsPage() {
             message: "สินค้าถูกลบออกจากระบบแล้ว",
             color: "green",
           });
-          getAllProductApi.refetch();
+          void getAllProductApi.refetch();
           return;
         } catch (err) {
           notifications.show({
@@ -121,7 +126,7 @@ export default function ProductsPage() {
         ),
         labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
         onConfirm: (): void => {
-          handleConfirm();
+          void handleConfirm();
         },
       });
     } catch (err) {
@@ -138,13 +143,15 @@ export default function ProductsPage() {
     try {
       const handleConfirm = async () => {
         try {
-          await adminDeleteManyProductApi.mutateAsync({ ids: selectedRows });
+          await adminDeleteManyProductApi.mutateAsync({
+            ids: selectedRows.map((element) => element.id),
+          });
           notifications.show({
             title: "ลบรายการสินค้าสำเร็จ",
             message: "สินค้าถูกลบออกจากระบบแล้ว",
             color: "green",
           });
-          getAllProductApi.refetch();
+          void getAllProductApi.refetch();
           setSelectedRows([]);
           return;
         } catch (err) {
@@ -163,7 +170,7 @@ export default function ProductsPage() {
         ),
         labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
         onConfirm: (): void => {
-          handleConfirm();
+          void handleConfirm();
         },
       });
     } catch (err) {
@@ -186,7 +193,7 @@ export default function ProductsPage() {
             message: "สถานะสินค้าถูกเปลี่ยนแปลงแล้ว",
             color: "green",
           });
-          getAllProductApi.refetch();
+          void getAllProductApi.refetch();
           return;
         } catch (err) {
           notifications.show({
@@ -204,7 +211,7 @@ export default function ProductsPage() {
         ),
         labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
         onConfirm: (): void => {
-          handleConfirm();
+          void handleConfirm();
         },
       });
     } catch (err) {
@@ -221,13 +228,15 @@ export default function ProductsPage() {
     try {
       const handleConfirm = async () => {
         try {
-          await adminToggleVisibleProductApi.mutateAsync({ ids: selectedRows });
+          await adminToggleVisibleProductApi.mutateAsync({
+            ids: selectedRows.map((element) => element.id),
+          });
           notifications.show({
             title: "เปลี่ยนสถานะสินค้าสำเร็จ",
             message: "สถานะสินค้าถูกเปลี่ยนแปลงแล้ว",
             color: "green",
           });
-          getAllProductApi.refetch();
+          void getAllProductApi.refetch();
           return;
         } catch (err) {
           notifications.show({
@@ -245,7 +254,7 @@ export default function ProductsPage() {
         ),
         labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
         onConfirm: (): void => {
-          handleConfirm();
+          void handleConfirm();
         },
       });
     } catch (err) {
@@ -259,8 +268,6 @@ export default function ProductsPage() {
   };
 
   const openEditModal = (product: editProductType) => {
-    console.log(product);
-
     setProductData(product);
     setEditMode(true);
     open();
@@ -275,107 +282,6 @@ export default function ProductsPage() {
   const theme = createTheme({
     cursorType: "pointer",
   });
-  const rows = getAllProductApi.data?.map((element) => (
-    <Table.Tr
-      key={element.id}
-      bg={
-        selectedRows.includes(element.id)
-          ? "var(--mantine-color-blue-light)"
-          : undefined
-      }
-    >
-      <Table.Td>
-        <Checkbox
-          aria-label="Select row"
-          // className="cursor-pointer"
-          checked={selectedRows.includes(element.id)}
-          onChange={(event) =>
-            setSelectedRows(
-              event.currentTarget.checked
-                ? [...selectedRows, element.id]
-                : selectedRows.filter((id) => id !== element.id),
-            )
-          }
-        />
-      </Table.Td>
-      <Table.Td>
-        <img
-          src={element.image}
-          alt={element.name}
-          width={70}
-          className="rounded-md"
-        />
-      </Table.Td>
-      <Table.Td>{element.name}</Table.Td>
-      <Table.Td>{element.price}</Table.Td>
-      <Table.Td>{element.quantity}</Table.Td>
-      <Table.Td>
-        <MantineProvider theme={theme}>
-          <Switch
-            style={
-              //cursor: pointer
-              { cursorType: "pointer" }
-            }
-            checked={!!element.isVisible}
-            onChange={() => {
-              onToggleVisible(element.id);
-            }}
-            color="teal"
-            size="sm"
-            // label="Switch with thumb icon"
-            thumbIcon={
-              !!element.isVisible ? (
-                <IconCheck
-                  style={{ width: rem(12), height: rem(12) }}
-                  color={"red"}
-                  stroke={3}
-                />
-              ) : (
-                <IconX
-                  style={{ width: rem(12), height: rem(12) }}
-                  color={"red"}
-                  stroke={3}
-                />
-              )
-            }
-          />
-        </MantineProvider>
-      </Table.Td>
-      <Table.Td className="">
-        <Group justify="center">
-          <ActionIcon
-            variant="filled"
-            aria-label="Edit"
-            onClick={() => {
-              openEditModal({
-                ...element,
-              });
-            }}
-          >
-            {" "}
-            {/*onClick={() =>{} }} */}
-            <IconPencil size={19} stroke={1.5} />
-          </ActionIcon>
-          <ActionIcon
-            color="red"
-            aria-label="Delete"
-            onClick={() => {
-              onDeleteProduct(element.id);
-            }}
-          >
-            <IconTrash size={19} stroke={1.5} />
-          </ActionIcon>
-        </Group>
-      </Table.Td>
-    </Table.Tr>
-  ));
-
-  const setSorting = (field: keyof RowData) => {
-    const reversed = field === sortBy ? !reverseSortDirection : false;
-    setReverseSortDirection(reversed);
-    setSortBy(field);
-    // setSortedData(sortData(data, { sortBy: field, reversed, search }));
-  };
 
   return (
     <>
@@ -387,6 +293,9 @@ export default function ProductsPage() {
         onSubmit={handleProductSubmit}
         mode={editMode ? "edit" : "create"}
         productData={editMode ? productData : undefined}
+        loading={
+          adminCreateProductApi.isPending || adminEditProductApi.isPending
+        }
       />
       <div className="flex flex-col gap-3">
         <div className="flex flex-col justify-between gap-3 lg:flex-row">
@@ -461,59 +370,88 @@ export default function ProductsPage() {
             />
           </div>
         </div>
-        <ScrollArea>
-          <Table verticalSpacing="xs" miw={700} layout="fixed">
-            <Table.Thead>
-              <Table.Tr>
-                <Th>
-                  <Checkbox
-                    aria-label="Select all rows"
-                    checked={
-                      selectedRows.length === getAllProductApi.data?.length
-                    }
-                    onChange={(event) =>
-                      setSelectedRows(
-                        event.currentTarget.checked
-                          ? (getAllProductApi.data?.map(
-                              (element) => element.id,
-                            ) ?? [])
-                          : [],
-                      )
-                    }
+        <DataTable
+          columns={[
+            {
+              accessor: "image",
+              title: "รูปสินค้า",
+              render: (record) => (
+                <img
+                  src={record.image}
+                  alt={record.name}
+                  width={70}
+                  className="rounded-md"
+                />
+              ),
+            },
+            {
+              accessor: "name",
+              title: "ชื่อสินค้า",
+              sortable: true,
+            },
+            {
+              accessor: "price",
+              title: "ราคา/บาท",
+              sortable: true,
+            },
+            {
+              accessor: "quantity",
+              title: "คงเหลือ",
+              sortable: true,
+            },
+            {
+              accessor: "isVisible",
+              title: "แสดงสินค้า",
+              render: (record) => (
+                <MantineProvider theme={theme}>
+                  <Switch
+                    checked={record.isVisible}
+                    onChange={() => onToggleVisible(record.id)}
                   />
-                </Th>
-                <Th>รูปสินค้า</Th>
-                <Th
-                  sorted={sortBy === "name"}
-                  reversed={reverseSortDirection}
-                  onSort={() => setSorting("name")}
-                >
-                  ชื่อสินค้า
-                </Th>
-                <Th
-                  sorted={sortBy === "company"}
-                  reversed={reverseSortDirection}
-                  onSort={() => setSorting("company")}
-                >
-                  ราคา/บาท
-                </Th>
-                <Th>คงเหลือ</Th>
-                <Th>แสดงสินค้า</Th>
-                <Th>เครื่องมือ</Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
-        </ScrollArea>
-        <Pagination.Root total={10} value={activePage} onChange={setPage}>
-          <Group gap={5} justify="center">
-            <Pagination.First />
-            <Pagination.Previous />
-            <Pagination.Items />
-            <Pagination.Next />
-            <Pagination.Last />
-          </Group>
-        </Pagination.Root>
+                </MantineProvider>
+              ),
+            },
+            {
+              accessor: "actions",
+              title: "เครื่องมือ",
+              render: (record) => (
+                <Group justify="center">
+                  <ActionIcon
+                    color="blue"
+                    onClick={() => openEditModal(record)}
+                  >
+                    <IconPencil size="1.2rem" />
+                  </ActionIcon>
+                  <ActionIcon
+                    color="red"
+                    onClick={() => onDeleteProduct(record.id)}
+                  >
+                    <IconTrash size="1.2rem" />
+                  </ActionIcon>
+                </Group>
+              ),
+            },
+          ]}
+          verticalSpacing="md"
+          miw={700}
+          minHeight={250}
+          verticalAlign="center"
+          noRecordsText="ไม่พบข้อมูล"
+          records={records}
+          totalRecords={getAllProductApi.data?.totalProduct}
+          paginationActiveBackgroundColor="grape"
+          recordsPerPage={pageSize ?? 10}
+          page={activePage}
+          onPageChange={(p) => setActivePage(p)}
+          recordsPerPageOptions={PAGE_SIZES}
+          onRecordsPerPageChange={setPageSize}
+          selectedRecords={selectedRows}
+          onSelectedRecordsChange={setSelectedRows}
+          fetching={getAllProductApi.isLoading}
+          sortStatus={sortStatus}
+          onSortStatusChange={setSortStatus}
+          pinLastColumn
+        />
       </div>
     </>
   );

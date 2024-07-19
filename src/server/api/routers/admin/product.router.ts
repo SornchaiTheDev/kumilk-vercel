@@ -186,6 +186,7 @@ export const productRouter = router({
     .query(async ({ ctx, input }) => {
       try {
         const { page, limit, search } = input;
+        const offset = (page - 1) * limit;
         const [products, count] = await ctx.db.$transaction([
           ctx.db.product.findMany({
             where: {
@@ -194,7 +195,7 @@ export const productRouter = router({
               },
             },
             take: limit,
-            skip: page * limit,
+            skip: offset,
             orderBy: {
               createdAt: "desc",
             },
@@ -210,7 +211,7 @@ export const productRouter = router({
             },
           }),
         ]);
-        return { products, pageCount: Math.ceil(count / limit) };
+        return { products, pageCount: Math.ceil(count / limit), totalProduct: count };
       } catch (err) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
