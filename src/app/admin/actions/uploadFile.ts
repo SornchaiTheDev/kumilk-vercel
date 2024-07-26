@@ -1,12 +1,12 @@
 "use server";
-import { auth } from "@/auth";
 import { checkAdminAuth } from "@/libs/checkAdminAuth";
 import { uploadFile as _uploadFile } from "@/libs/uploadFile";
+import { getServerAuthSession } from "@/server/auth";
 
 export const uploadFile = async (
   formData: FormData,
 ): Promise<[string | null, string | null]> => {
-  const session = await auth();
+  const session = await getServerAuthSession();
   try {
     const email = session?.user?.email ?? "";
     const status = await checkAdminAuth(email);

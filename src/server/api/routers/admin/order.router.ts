@@ -17,7 +17,7 @@ export const orderRouter = router({
         const [histories, count] = await ctx.db.$transaction([
           ctx.db.orderHistory.findMany({
             where: {
-              customer: {
+              User: {
                 email: search,
               },
             },
@@ -34,7 +34,7 @@ export const orderRouter = router({
             where: {
               OR: [
                 {
-                  customer: {
+                  User: {
                     email: search,
                   },
                 },

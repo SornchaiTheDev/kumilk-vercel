@@ -14,6 +14,63 @@ model AdminUser {
     @@map("admin_users")
 }
 
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String    @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+
+    firstName    String         @default("")
+    lastName     String         @default("")
+    phoneNumber  String         @default("")
+    orderHistory OrderHistory[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Account {
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@id([provider, providerAccountId])
+}
+
+model Session {
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+    identifier String
+    token      String
+    expires    DateTime
+
+    @@id([identifier, token])
+}
+
 model Product {
     id          String    @id @default(cuid())
     name        String    @unique
@@ -28,18 +85,6 @@ model Product {
     @@map("products")
 }
 
-model Customer {
-    id           String         @id @default(cuid())
-    email        String         @unique
-    password     String?        @default("")
-    firstName    String         @default("")
-    lastName     String         @default("")
-    phoneNumber  String         @default("")
-    orderHistory OrderHistory[]
-
-    @@map("customer")
-}
-
 model OrderHistory {
     id         String      @id @default(cuid())
     isPaid     Boolean
@@ -48,10 +93,10 @@ model OrderHistory {
     date       DateTime
     total      Float
     items      OrderItem[]
-    customer   Customer    @relation(fields: [customerId], references: [id])
-    customerId String
     createdAt  DateTime    @default(now())
     updatedAt  DateTime?
+    User       User?       @relation(fields: [userId], references: [id])
+    userId     String?
 
     @@map("order_histories")
 }

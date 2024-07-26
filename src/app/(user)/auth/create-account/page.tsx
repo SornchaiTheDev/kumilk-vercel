@@ -1,12 +1,23 @@
-import { Avatar, Button, TextInput } from "@mantine/core";
+import { Avatar } from "@mantine/core";
 import { PencilLine } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import Cow1 from "@/assets/images/cow1.png";
+import { redirect } from "next/navigation";
+import { getServerAuthSession } from "@/server/auth";
+import UserInfo from "../../_components/organisms/userInfo/UserInfo";
 
-function CreateAccountPage() {
+async function CreateAccountPage() {
+  const customerMiddleware = async () => {
+    const session = await getServerAuthSession();
+
+    if (session === null) redirect("/");
+  };
+
+  await customerMiddleware();
+
   return (
-    <div className="mt-10 flex md:flex-col md:gap-10 lg:flex-row lg:gap-20">
+    <div className="mt-10 flex flex-col md:gap-10 lg:flex-row lg:gap-20">
       <div className="flex-1 space-y-4">
         <Avatar size="lg" color="blue">
           <PencilLine />
@@ -17,21 +28,12 @@ function CreateAccountPage() {
             ข้อมูลเพื่อใช้ในการยืนยันตัวตนในวันเข้ารับสินค้า
           </p>
         </div>
-        <div className="space-y-4">
-          <div className="flex flex-col gap-8 md:flex-row">
-            <TextInput size="md" label="ชื่อ" flex="1" />
-            <TextInput size="md" label="นามสกุล" flex="1" />
-          </div>
-          <TextInput size="md" label="เบอร์โทรศัพท์" />
-          <Button fullWidth h={40}>
-            บันทึกข้อมูล
-          </Button>
-        </div>
+        <UserInfo />
       </div>
-      <div className="flex justify-center items-center flex-1">
+      <div className="flex flex-1 items-center justify-center">
         <Image
           src={Cow1}
-          className="hidden aspect-square md:block max-w-[400px]"
+          className="aspect-square max-w-[400px] md:block"
           alt="milk cow in the farm"
         />
       </div>

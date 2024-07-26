@@ -1,6 +1,8 @@
+"use client";
 import { GoogleButton } from "@/app/admin/auth/sign-in/components/GoogleButton";
-import { Button, TextInput } from "@mantine/core";
+import { Button } from "@mantine/core";
 import Link from "next/link";
+import EmailLoginComponent from "../../_components/organisms/emailLogin/EmailLogin";
 
 function CustomerSignInPage() {
   return (
@@ -16,11 +18,7 @@ function CustomerSignInPage() {
             <h5 className="text-sm">หรือ</h5>
             <div className="flex-1 border-t border-zinc-200"></div>
           </div>
-          <TextInput label="อีเมล" placeholder="john.doe@gmail.com" />
-          <TextInput label="รหัสผ่าน" placeholder="••••••••••" />
-          <Button fullWidth mt={10}>
-            เข้าสู่ระบบ
-          </Button>
+          <EmailLoginComponent type="sign-in" />
         </div>
         <div className="h-1 border-t"></div>
         <div className="flex flex-1 flex-col gap-4">

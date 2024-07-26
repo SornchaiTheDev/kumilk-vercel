@@ -8,8 +8,8 @@ export default function UserLayout({
     <div className="flex min-h-screen flex-col">
       <div className="mb-10 flex flex-grow flex-col">
         <NavbarHeader />
-        <div className="px-4 py-3">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-3">
+          {children}
         </div>
       </div>
       <Footer />

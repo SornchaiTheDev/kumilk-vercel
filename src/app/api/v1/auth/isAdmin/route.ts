@@ -8,8 +8,6 @@ export const POST = async (req: Request) => {
   }
 
   const status = await checkAdminAuth(email);
- 
-  const isOk = status === "OK";
 
-  return Response.json({ status }, { status: isOk ? 200 : 403 });
+  return Response.json({ status }, { status: 200 });
 };

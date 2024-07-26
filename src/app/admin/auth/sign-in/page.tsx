@@ -1,6 +1,8 @@
+"use client";
+
 import { Group, Paper, Text } from "@mantine/core";
 import { GoogleButton } from "./components/GoogleButton";
-import { signIn } from "@/auth";
+import { signIn } from "next-auth/react";
 
 export default function SignInPage() {
   return (
@@ -11,16 +13,17 @@ export default function SignInPage() {
         </Text>
 
         <Group grow mb="md" mt="md">
-          <form
-            action={async () => {
-              "use server";
-              await signIn("google", { redirectTo: "/admin" });
-            }}
+          <GoogleButton
+            onClick={() =>
+              signIn("google", {
+                callbackUrl: "/admin/auth/sign-in",
+              })
+            }
+            fullWidth
+            type="submit"
           >
-            <GoogleButton fullWidth type="submit">
-              Google
-            </GoogleButton>
-          </form>
+            Google
+          </GoogleButton>
         </Group>
       </Paper>
     </div>

@@ -43,7 +43,7 @@ export const checkoutProcedure = router({
             isPaid: false,
             date: new Date(),
             total,
-            customer: {
+            User: {
               connectOrCreate: {
                 where: {
                   email,

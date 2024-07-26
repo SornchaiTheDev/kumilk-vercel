@@ -50,22 +50,22 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body className={fontSans.className}>
-        <TRPCReactProvider>
-          <MantineProvider theme={theme}>
-            <NavigationProgress />
-            <Notifications />
-            <ModalsProvider>
-              {/* <div className="fixed bottom-0 left-0 right-0 top-0 z-50">
+          <TRPCReactProvider>
+            <MantineProvider theme={theme}>
+              <NavigationProgress />
+              <Notifications />
+              <ModalsProvider>
+                {/* <div className="fixed bottom-0 left-0 right-0 top-0 z-50">
                 <LoadingOverlay
                   visible={true}
                   zIndex={1000}
                   overlayProps={{ radius: "sm", blur: 2 }}
                 />
               </div> */}
-              {children}
-            </ModalsProvider>
-          </MantineProvider>
-        </TRPCReactProvider>
+                {children}
+              </ModalsProvider>
+            </MantineProvider>
+          </TRPCReactProvider>
       </body>
     </html>
   );
