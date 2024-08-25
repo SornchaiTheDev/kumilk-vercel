@@ -22,14 +22,10 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
 
-    firstName    String         @default("")
-    lastName     String         @default("")
-    phoneNumber  String         @default("")
-    orderHistory OrderHistory[]
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    Customer Customer[]
 }
 
 model Account {
@@ -71,6 +67,18 @@ model VerificationToken {
     @@id([identifier, token])
 }
 
+model Customer {
+    firstName    String         @default("")
+    lastName     String         @default("")
+    phoneNumber  String         @default("")
+    orderHistory OrderHistory[]
+
+    customer   User   @relation(fields: [customerId], references: [id])
+    customerId String @id
+
+    @@map("customers")
+}
+
 model Product {
     id          String    @id @default(cuid())
     name        String    @unique
@@ -95,8 +103,8 @@ model OrderHistory {
     items      OrderItem[]
     createdAt  DateTime    @default(now())
     updatedAt  DateTime?
-    User       User?       @relation(fields: [userId], references: [id])
-    userId     String?
+    Customer   Customer?   @relation(fields: [customerId], references: [customerId])
+    customerId String?
 
     @@map("order_histories")
 }

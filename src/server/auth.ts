@@ -5,13 +5,20 @@ import {
 } from "next-auth";
 
 import { env } from "@/env";
-import axios from "axios";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "./db";
 import Email from "next-auth/providers/email";
 import { sendVerificationRequest } from "./utils/sendVerificationRequest";
 import type { Adapter } from "next-auth/adapters";
+
+declare module "next-auth/jwt" {
+  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+  interface JWT {
+    /** OpenID ID Token */
+    id: string;
+  }
+}
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -28,10 +35,9 @@ declare module "next-auth" {
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    id: string;
+  }
 }
 
 /**
@@ -65,6 +71,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async redirect({ baseUrl }) {
       return baseUrl + "/auth/create-account";
+    },
+
+    async session({ session, user }) {
+      // Send properties to the client, like an access_token and user id from a provider.
+      session.user.id = user.id;
+
+      return session;
     },
   },
 };

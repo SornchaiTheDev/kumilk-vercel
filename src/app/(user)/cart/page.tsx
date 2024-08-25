@@ -42,7 +42,7 @@ export default function CartPage() {
           )}
         </div>
         <div className="mt-3 flex justify-end">
-          <Button onClick={() => router.push("/checkout/step-1")} disabled={cart.length === 0} fullWidth size={isMobile ? "lg" : "xl"}>
+          <Button onClick={() => router.push("/checkout/step-2")} disabled={cart.length === 0} fullWidth size={isMobile ? "lg" : "xl"}>
             สั่งซื้อสินค้า
           </Button>
         </div>

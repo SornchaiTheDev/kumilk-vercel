@@ -54,6 +54,7 @@ function UserInfo() {
   return (
     <form
       className="mt-4 flex w-full flex-col gap-4"
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       onSubmit={form.onSubmit(handleSubmit)}
     >
       <div className="block gap-4 lg:flex">

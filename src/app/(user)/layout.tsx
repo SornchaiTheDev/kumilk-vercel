@@ -3,6 +3,7 @@ import Footer from "../_components/organisms/footer/Footer";
 import { getServerAuthSession } from "@/server/auth";
 import { checkAdminAuth } from "@/libs/checkAdminAuth";
 import { redirect } from "next/navigation";
+import SessionProvider from "./_components/atoms/SessionProvider";
 
 export default async function UserLayout({
   children,
@@ -16,15 +17,18 @@ export default async function UserLayout({
       return redirect("/admin/products");
     }
   }
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="mb-10 flex flex-grow flex-col">
-        <NavbarHeader />
-        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-3">
-          {children}
+    <SessionProvider session={session}>
+      <div className="flex min-h-screen flex-col">
+        <div className="mb-10 flex flex-grow flex-col">
+          <NavbarHeader />
+          <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-3">
+            {children}
+          </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </SessionProvider>
   );
 }

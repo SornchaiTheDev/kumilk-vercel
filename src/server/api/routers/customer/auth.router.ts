@@ -31,11 +31,13 @@ export const authRouter = router({
         });
       }
 
-      if (
-        currentUser.phoneNumber !== "" ||
-        currentUser.firstName !== "" ||
-        currentUser.lastName !== ""
-      ) {
+      const customerData = await ctx.db.customer.findUnique({
+        where: {
+          customerId: currentUser.id,
+        },
+      });
+
+      if (customerData !== null) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "SOMETHING_WENT_WRONG",
@@ -43,14 +45,12 @@ export const authRouter = router({
       }
 
       try {
-        await ctx.db.user.update({
-          where: {
-            email: user.email,
-          },
+        await ctx.db.customer.create({
           data: {
             firstName,
             lastName,
             phoneNumber,
+            customerId: currentUser.id,
           },
         });
       } catch (err) {

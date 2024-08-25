@@ -1,16 +1,16 @@
 import { db } from "@/server/db";
 
-const getUserInfo = async (email: string) => {
-  const user = await db.user.findUnique({
+const getUserInfo = async (id: string) => {
+  const user = await db.customer.findUnique({
     where: {
-      email,
+      customerId: id,
     },
   });
   return user;
 };
 
-export const isAlreadyHaveInfo = async (email: string) => {
-  const user = await getUserInfo(email);
+export const isAlreadyHaveInfo = async (id: string) => {
+  const user = await getUserInfo(id);
   if (user === null) return false;
   if (user.phoneNumber === "") return false;
   if (user.firstName === "") return false;

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   const router = useRouter();
-  const { email, setEmail } = useCheckout();
+  // const { email, setEmail } = useCheckout();
 
   const form = useForm({
     mode: "uncontrolled",
@@ -21,16 +21,16 @@ export default function Page() {
     },
   });
 
-  useEffect(() => {
-    if (email) {
-      router.push("/checkout/step-2");
-    }
-  }, [email]);
+  // useEffect(() => {
+  //   if (email) {
+  //     router.push("/checkout/step-2");
+  //   }
+  // }, [email]);
 
   return (
     <form
       onSubmit={form.onSubmit((values) => {
-        setEmail(values.email);
+        // setEmail(values.email);
         router.push("/checkout/step-2");
       })}
       className="flex flex-col gap-3"

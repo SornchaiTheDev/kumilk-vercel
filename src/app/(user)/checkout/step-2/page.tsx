@@ -19,13 +19,15 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Page() {
   const router = useRouter();
   const mapPriceApi = api.customer.cart.cartMapPrice.useMutation();
   const checkoutApi = api.customer.checkout.createOrder.useMutation();
   const [cart, setCart] = useLocalStorage<Cart[]>("cart", []);
-  const { email, setOrderId, orderId } = useCheckout();
+  const { setOrderId, orderId } = useCheckout();
+  const { data: session } = useSession();
 
   useEffect(() => {
     mapPriceApi.mutate(cart);
@@ -38,7 +40,7 @@ export default function Page() {
   }, [orderId]);
 
   const handleCheckout = () => {
-    if (!email) return;
+    if (!session?.user.id) return;
     if (!mapPriceApi.data) return;
     if (!mapPriceApi.data?.totalPrice) return;
     if (!mapPriceApi.data.items) return;
@@ -50,7 +52,7 @@ export default function Page() {
       children: (
         <Text size="sm">
           คุณต้องการสั่งซื้อสินค้าใช่หรือไม่? หากต้องการสั่งซื้อสินค้า
-          กรุณาตรวจสอบอีเมลลูกค้าให้ถูกต้อง
+          กรุณาตรวจสอบรายการสินค้าให้ถูกต้อง
         </Text>
       ),
       labels: { confirm: "ยืนยัน", cancel: "ยกเลิก" },
@@ -65,7 +67,7 @@ export default function Page() {
 
         checkoutApi.mutate(
           {
-            email,
+            customerId: session.user.id,
             total: mapPriceApi.data?.totalPrice,
             items: mapPriceApi.data.items,
           },
@@ -120,17 +122,17 @@ export default function Page() {
               </div>
             )}
           </div>
-          <div className="flex flex-col items-start md:items-end">
-            {isLoading ? (
-              <Skeleton className="mt-3 h-[2rem] w-[13rem] md:mt-0" />
-            ) : (
-              <div className="flex gap-1">
-                <div>อีเมลลูกค้า</div>
-                <div>:</div>
-                <div>{email}</div>
-              </div>
-            )}
-          </div>
+          {/* <div className="flex flex-col items-start md:items-end"> */}
+          {/*   {isLoading ? ( */}
+          {/*     <Skeleton className="mt-3 h-[2rem] w-[13rem] md:mt-0" /> */}
+          {/*   ) : ( */}
+          {/*     <div className="flex gap-1"> */}
+          {/*       <div>อีเมลลูกค้า</div> */}
+          {/*       <div>:</div> */}
+          {/*       <div>{email}</div> */}
+          {/*     </div> */}
+          {/*   )} */}
+          {/* </div> */}
         </div>
         {isLoading ? (
           <Skeleton className="mt-3 h-[30rem] w-full" />

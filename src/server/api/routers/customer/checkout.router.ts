@@ -18,7 +18,7 @@ export const itemSchema = z.object({
 });
 
 export const checkoutSchema = z.object({
-  email: z.string().email(),
+  customerId: z.string(),
   total: z.number().min(1),
   items: z.array(itemSchema).min(1),
 });
@@ -27,7 +27,7 @@ export const checkoutProcedure = router({
   createOrder: publicProcedure
     .input(checkoutSchema)
     .mutation(async ({ ctx, input }) => {
-      const { email, total, items } = input;
+      const { customerId, total, items } = input;
 
       const moddedItems: OrderItem[] = items.map(
         ({ name, price, quantity }) => ({
@@ -43,16 +43,7 @@ export const checkoutProcedure = router({
             isPaid: false,
             date: new Date(),
             total,
-            User: {
-              connectOrCreate: {
-                where: {
-                  email,
-                },
-                create: {
-                  email,
-                },
-              },
-            },
+            customerId,
             items: {
               createMany: {
                 data: moddedItems,

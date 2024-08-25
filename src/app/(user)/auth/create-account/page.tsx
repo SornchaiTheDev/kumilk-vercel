@@ -12,10 +12,11 @@ async function CreateAccountPage() {
   const customerMiddleware = async () => {
     const session = await getServerAuthSession();
 
+    console.log(session?.user.id);
     if (session === null) redirect("/");
-    if (!!session.user.email === false) redirect("/");
+    if (!!session.user.id === false) redirect("/");
 
-    if (await isAlreadyHaveInfo(session.user.email)) redirect("/");
+    if (await isAlreadyHaveInfo(session.user.id)) redirect("/");
   };
 
   await customerMiddleware();
