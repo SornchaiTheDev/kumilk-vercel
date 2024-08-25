@@ -5,10 +5,8 @@ import {
   Menu,
   rem,
 } from "@mantine/core";
-import {
-  IconLogout,
-  IconUser,
-} from "@tabler/icons-react";
+import { IconLogout, IconUser } from "@tabler/icons-react";
+import { signOut } from "next-auth/react";
 
 interface Props {
   variant?: ButtonVariant;
@@ -31,6 +29,7 @@ export default function UserButton(props: Props) {
 
       <Menu.Dropdown>
         <Menu.Item
+          onClick={() => signOut()}
           color="red"
           leftSection={
             <IconLogout style={{ width: rem(14), height: rem(14) }} />

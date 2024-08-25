@@ -3,6 +3,7 @@ import { GoogleButton } from "@/app/admin/auth/sign-in/components/GoogleButton";
 import { Button } from "@mantine/core";
 import Link from "next/link";
 import EmailLoginComponent from "../../_components/organisms/emailLogin/EmailLogin";
+import { signIn } from "next-auth/react";
 
 function CustomerSignInPage() {
   return (
@@ -10,7 +11,7 @@ function CustomerSignInPage() {
       <div className="flex w-full flex-col gap-10 md:flex-row xl:gap-20">
         <div className="flex flex-1 flex-col gap-4">
           <h4 className="text-2xl font-bold">เข้าสู่ระบบ</h4>
-          <GoogleButton h={46} fullWidth>
+          <GoogleButton onClick={() => signIn("google")} h={46} fullWidth>
             เข้าสู่ระบบด้วย Google
           </GoogleButton>
           <div className="mt-2 flex w-1/2 items-center gap-4 self-center">
