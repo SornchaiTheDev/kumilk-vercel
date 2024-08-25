@@ -63,30 +63,6 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ account, profile }) {
-      return true;
-      if (account?.provider === "google") {
-        const email = profile?.email;
-        if (email === undefined) return false;
-
-        const res = await axios.post<{
-          status: "OK" | "NOT_AUTHORIZE" | "INVALID_REQUEST";
-        }>(`${env.NEXTAUTH_URL}/api/v1/auth/isAdmin`, {
-          email,
-        });
-        const isAdmin = res.data.status === "OK";
-
-        if (!isAdmin) {
-          return true;
-          try {
-          } catch (err) {
-            return true;
-          }
-        }
-        return true;
-      }
-      return true;
-    },
     async redirect({ baseUrl }) {
       return baseUrl + "/auth/create-account";
     },

@@ -18,6 +18,30 @@ export const authRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
+      const currentUser = await ctx.db.user.findUnique({
+        where: {
+          email: user.email,
+        },
+      });
+
+      if (currentUser === null) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
+
+      if (
+        currentUser.phoneNumber !== "" ||
+        currentUser.firstName !== "" ||
+        currentUser.lastName !== ""
+      ) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "SOMETHING_WENT_WRONG",
+        });
+      }
+
       try {
         await ctx.db.user.update({
           where: {

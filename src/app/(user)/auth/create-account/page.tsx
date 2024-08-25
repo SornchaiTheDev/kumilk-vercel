@@ -6,12 +6,16 @@ import Cow1 from "@/assets/images/cow1.png";
 import { redirect } from "next/navigation";
 import { getServerAuthSession } from "@/server/auth";
 import UserInfo from "../../_components/organisms/userInfo/UserInfo";
+import { isAlreadyHaveInfo } from "./actions/getUserInfo";
 
 async function CreateAccountPage() {
   const customerMiddleware = async () => {
     const session = await getServerAuthSession();
 
     if (session === null) redirect("/");
+    if (!!session.user.email === false) redirect("/");
+
+    if (await isAlreadyHaveInfo(session.user.email)) redirect("/");
   };
 
   await customerMiddleware();

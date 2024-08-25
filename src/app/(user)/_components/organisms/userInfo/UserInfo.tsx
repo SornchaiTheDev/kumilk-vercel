@@ -1,6 +1,6 @@
 "use client";
 
-import { TUserInfo } from "@/schemas/userInfo";
+import type { TUserInfo } from "@/schemas/userInfo";
 import { api } from "@/trpc/react";
 import { Button, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -39,7 +39,7 @@ function UserInfo() {
         message: "กำลังนำคุณไปยังหน้าสั่งซื้อสินค้า",
         color: "green",
       });
-      router.push("/cart");
+      router.push("/");
     } catch (err) {
       notifications.show({
         title: "เกิดข้อผิดพลาด",
