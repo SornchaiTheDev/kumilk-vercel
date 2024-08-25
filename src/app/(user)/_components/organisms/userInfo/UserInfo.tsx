@@ -39,7 +39,7 @@ function UserInfo() {
         message: "กำลังนำคุณไปยังหน้าสั่งซื้อสินค้า",
         color: "green",
       });
-      router.push("/");
+      router.push("/checkout/step-2");
     } catch (err) {
       notifications.show({
         title: "เกิดข้อผิดพลาด",

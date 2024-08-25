@@ -18,7 +18,7 @@ import { useEffect } from "react";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 export default function Page() {
@@ -40,7 +40,7 @@ export default function Page() {
   }, [orderId]);
 
   const handleCheckout = () => {
-    if (!session?.user.id) return;
+    if (!session?.user.id) return router.push("/auth/sign-in");
     if (!mapPriceApi.data) return;
     if (!mapPriceApi.data?.totalPrice) return;
     if (!mapPriceApi.data.items) return;
