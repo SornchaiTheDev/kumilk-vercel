@@ -328,19 +328,6 @@ export default function ProductsPage() {
                 </Button>
               </>
             ) : null}
-            <div className="ml-auto lg:hidden">
-              <Select
-                placeholder="Select items per page"
-                allowDeselect={false}
-                defaultValue={"10"}
-                type="number"
-                data={["10", "20", "50", "100"]}
-                size="sm"
-                maw={80}
-                comboboxProps={{ width: 80 }}
-                // searchable
-              />
-            </div>
 
             {/* <Button color="blue" variant="light">
               เครื่องมือ
@@ -353,16 +340,6 @@ export default function ProductsPage() {
             className="lg:hidden"
           />
           <div className="hidden gap-2 lg:inline-flex">
-            <Select
-              placeholder="Select items per page"
-              allowDeselect={false}
-              defaultValue={"10"}
-              type="number"
-              data={["10", "20", "50", "100"]}
-              size="sm"
-              maw={80}
-              comboboxProps={{ width: 80 }}
-            />
             <Input
               placeholder="Search.."
               size="sm"
@@ -372,6 +349,7 @@ export default function ProductsPage() {
         </div>
         <DataTable
           columns={[
+            { accessor: 'number', title: '#', render: (_, index) => ((activePage - 1) * pageSize! + index + 1) },
             {
               accessor: "image",
               title: "รูปสินค้า",
@@ -433,6 +411,7 @@ export default function ProductsPage() {
             },
           ]}
           verticalSpacing="md"
+          
           miw={700}
           minHeight={250}
           verticalAlign="center"
