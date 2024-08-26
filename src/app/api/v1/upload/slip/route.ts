@@ -5,8 +5,6 @@ export const POST = async (req: Request) => {
   try {
     const formData = await req.formData();
     const orderId = formData.get("orderId");
-    console.log(orderId);
-    
 
     if (typeof orderId != "string") {
       throw new Error("BAD_REQUEST");
@@ -22,7 +20,7 @@ export const POST = async (req: Request) => {
       throw new Error("ORDER_NOT_FOUND");
     }
 
-    const dest = await uploadFile(formData, "slip/");
+    const { objectName } = await uploadFile(formData, "slip/");
 
     try {
       await db.orderHistory.update({
@@ -30,7 +28,7 @@ export const POST = async (req: Request) => {
           id: orderId,
         },
         data: {
-          slipImage: dest,
+          slipImage: objectName,
         },
       });
       return Response.json({ message: "SUCCESS" });

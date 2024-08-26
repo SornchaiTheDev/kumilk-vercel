@@ -14,7 +14,7 @@ export const uploadFile = async (
       return [null, "NOT_AUTHORIZED"];
     }
 
-    const dest = await _uploadFile(formData);
+    const { dest } = await _uploadFile(formData);
     return [dest, null];
   } catch (err) {
     return [null, "SOMETHING_WENT_WRONG"];

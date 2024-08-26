@@ -1,18 +1,8 @@
-import * as Minio from "minio";
 import reduceImageSize from "@/libs/reduceImageSize";
 import { env } from "@/env";
+import { bucketName, client } from "./minio";
 
 export const uploadFile = async (formData: FormData, objectDir = "public/") => {
-  const client = new Minio.Client({
-    endPoint: env.MINIO_ENDPOINT,
-    port: parseInt(env.MINIO_PORT),
-    useSSL: Boolean(env.MINIO_SSL),
-    accessKey: env.MINIO_ACCESS_KEY,
-    secretKey: env.MINIO_SECRET_KEY,
-  });
-
-  const bucketName = "ku-milk";
-
   const files = formData.getAll("file") as File[];
 
   if (files.length > 1) {
@@ -45,5 +35,8 @@ export const uploadFile = async (formData: FormData, objectDir = "public/") => {
   );
 
   const protocol = env.MINIO_SSL ? "https://" : "http://";
-  return `${protocol}${env.MINIO_ENDPOINT}/${bucketName}/${objectPath}`;
+  return {
+    objectName,
+    dest: `${protocol}${env.MINIO_ENDPOINT}/${bucketName}/${objectPath}`,
+  };
 };

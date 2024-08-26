@@ -11,12 +11,11 @@ export const POST = async (req: Request) => {
       return Response.json({ message: "NOT_AUTHORIZED" }, { status: 403 });
     }
     const formData = await req.formData();
-    const dest = await uploadFile(formData);
+    const { dest } = await uploadFile(formData);
     return Response.json({
       dest,
     });
   } catch (err) {
-		console.log(err)
     return Response.json({ message: "SOMETHING_WENT_WRONG" }, { status: 400 });
   }
 };
