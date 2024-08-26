@@ -80,15 +80,16 @@ model Customer {
 }
 
 model Product {
-    id          String    @id @default(cuid())
-    name        String    @unique
+    id          String      @id @default(cuid())
+    name        String      @unique
     description String
     quantity    Int
     price       Float
     image       String
-    isVisible   Boolean   @default(true)
-    createdAt   DateTime  @default(now())
+    isVisible   Boolean     @default(true)
+    createdAt   DateTime    @default(now())
     updatedAt   DateTime?
+    OrderItem   OrderItem[]
 
     @@map("products")
 }
@@ -114,8 +115,10 @@ model OrderItem {
     productName    String
     productPrice   Float
     quantity       Int
-    orderHistory   OrderHistory? @relation(fields: [orderHistoryId], references: [id])
+    orderHistory   OrderHistory? @relation(fields: [orderHistoryId], references: [id], onDelete: Cascade)
     orderHistoryId String?
+    product        Product       @relation(fields: [productId], references: [id])
+    productId      String
 
     @@map("order_items")
 }
