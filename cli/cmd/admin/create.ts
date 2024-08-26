@@ -8,7 +8,6 @@ export const createAdmin = async () => {
       type: "text",
       name: "email",
       message: "Enter Email",
-      validate: (val: string) => val.endsWith("@ku.th"),
     });
 
     console.log("Creating user...");
