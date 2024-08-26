@@ -1,7 +1,14 @@
+import { getPresignedUrl } from "@/libs/getPresignedUrl";
 import { adminRoute, router } from "@/server/api/trpc";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
+
+export type OrderHistory = Prisma.OrderHistoryGetPayload<{
+  include: { items: true; Customer: true };
+}>;
+
 export const orderRouter = router({
   list: adminRoute
     .input(
@@ -14,66 +21,44 @@ export const orderRouter = router({
     .query(async ({ ctx, input }) => {
       try {
         const { page, limit, search } = input;
+        const offset = (page - 1) * limit;
         const [histories, count] = await ctx.db.$transaction([
           ctx.db.orderHistory.findMany({
-            where: {
-              Customer: {
-                OR: [
-                  {
-                    firstName: {
-                      contains: search,
-                    },
-                  },
-                  {
-                    lastName: {
-                      contains: search,
-                    },
-                  },
-                  {
-                    phoneNumber: {
-                      contains: search,
-                    },
-                  },
-                ],
-              },
-            },
-            take: limit,
-            skip: page * limit,
-            orderBy: {
-              date: "desc",
-            },
+            // take: limit,
+            // skip: offset,
+            // orderBy: {
+            //   date: "desc",
+            // },
             include: {
               items: true,
+              Customer: true,
             },
           }),
           ctx.db.orderHistory.count({
-            where: {
-              Customer: {
-                OR: [
-                  {
-                    firstName: {
-                      contains: search,
-                    },
-                  },
-                  {
-                    lastName: {
-                      contains: search,
-                    },
-                  },
-                  {
-                    phoneNumber: {
-                      contains: search,
-                    },
-                  },
-                ],
-              },
-            },
             orderBy: {
               date: "desc",
             },
           }),
         ]);
-        return { histories, pageCount: Math.ceil(count / limit) };
+
+        const moddedHistories: OrderHistory[] = [];
+        for (const history of histories) {
+          let presignedImage = null;
+          if (history.slipImage !== null) {
+            presignedImage = await getPresignedUrl("slip/", history.slipImage);
+          }
+
+          moddedHistories.push({
+            ...history,
+            slipImage: presignedImage,
+          });
+        }
+
+        return {
+          histories: moddedHistories,
+          pageCount: Math.ceil(count / limit),
+          totalOrder: count,
+        };
       } catch (err) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -122,6 +107,29 @@ export const orderRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { orderId } = input;
       try {
+        const orderItems = await ctx.db.orderItem.findMany({
+          where: {
+            orderHistoryId: orderId,
+          },
+          select: {
+            productId: true,
+            quantity: true,
+          },
+        });
+
+        for (const { productId, quantity } of orderItems) {
+          await ctx.db.product.update({
+            where: {
+              id: productId,
+            },
+            data: {
+              quantity: {
+                increment: quantity,
+              },
+            },
+          });
+        }
+
         await ctx.db.orderHistory.delete({
           where: {
             id: orderId,

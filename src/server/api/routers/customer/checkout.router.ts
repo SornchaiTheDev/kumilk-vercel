@@ -8,6 +8,7 @@ type OrderItem = Prisma.OrderItemGetPayload<{
     productName: true;
     productPrice: true;
     quantity: true;
+    productId: true;
   };
 }>;
 
@@ -15,6 +16,7 @@ export const itemSchema = z.object({
   name: z.string(),
   price: z.number().min(1),
   quantity: z.number().min(1),
+  id: z.string(),
 });
 
 export const checkoutSchema = z.object({
@@ -30,14 +32,44 @@ export const checkoutProcedure = router({
       const { customerId, total, items } = input;
 
       const moddedItems: OrderItem[] = items.map(
-        ({ name, price, quantity }) => ({
+        ({ name, price, quantity, id }) => ({
           productName: name,
           productPrice: price,
+          productId: id,
           quantity,
         }),
       );
 
       try {
+        const products = await ctx.db.product.findMany({
+          where: {
+            id: {
+              in: items.map((item) => item.id),
+            },
+          },
+        });
+
+        for (const item of items) {
+          const product = products.find((p) => p.id === item.id);
+          if (product === undefined) throw new Error("Product not found");
+          if (product.quantity < item.quantity) {
+            throw new Error("Not enough stock");
+          }
+        }
+
+        for (const { id, quantity } of items) {
+          await ctx.db.product.update({
+            where: {
+              id,
+            },
+            data: {
+              quantity: {
+                decrement: quantity,
+              },
+            },
+          });
+        }
+
         const order = await ctx.db.orderHistory.create({
           data: {
             isPaid: false,
@@ -51,8 +83,16 @@ export const checkoutProcedure = router({
             },
           },
         });
+
         return order.id;
-      } catch (err) {}
+      } catch (err) {
+        if (err instanceof Error) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: err.message,
+          });
+        }
+      }
     }),
   orderDetail: publicProcedure
     .input(z.object({ orderId: z.string() }))

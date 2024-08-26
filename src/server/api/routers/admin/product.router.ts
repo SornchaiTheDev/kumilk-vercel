@@ -211,7 +211,11 @@ export const productRouter = router({
             },
           }),
         ]);
-        return { products, pageCount: Math.ceil(count / limit), totalProduct: count };
+        return {
+          products,
+          pageCount: Math.ceil(count / limit),
+          totalProduct: count,
+        };
       } catch (err) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
