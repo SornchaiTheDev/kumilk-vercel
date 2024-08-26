@@ -73,12 +73,12 @@ export default function CreateEditProductModal({
       price: mode === "edit" && productData ? productData.price : 0,
       quantity: mode === "edit" && productData ? productData.quantity : 0,
       description:
-        mode === "edit" && productData
-          ? productData.description
-          : ``,
+        mode === "edit" && productData ? productData.description : ``,
       image: mode === "edit" && productData ? productData.image : "",
       isVisible:
-        mode === "edit" && productData ? productData.isVisible.toString() : "true",
+        mode === "edit" && productData
+          ? productData.isVisible.toString()
+          : "true",
       id: "",
     },
     validate: zodResolver(
@@ -99,15 +99,11 @@ export default function CreateEditProductModal({
     );
     form.setFieldValue("quantity", productData?.quantity ?? 0);
     setRichTextValue(
-      mode === "edit" && productData
-        ? productData.description!
-        : ``,
+      mode === "edit" && productData ? productData.description! : ``,
     );
     form.setFieldValue(
       "description",
-      mode === "edit" && productData
-        ? productData.description
-        : ``,
+      mode === "edit" && productData ? productData.description : ``,
     );
     form.setFieldValue(
       "image",
@@ -115,7 +111,9 @@ export default function CreateEditProductModal({
     );
     form.setFieldValue(
       "isVisible",
-      mode === "edit" && productData ? productData.isVisible.toString() : "true",
+      mode === "edit" && productData
+        ? productData.isVisible.toString()
+        : "true",
     );
 
     if (mode === "edit" && productData) {
@@ -159,9 +157,10 @@ export default function CreateEditProductModal({
     }
   };
 
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleSubmit = async (values: typeof form.values) => {
     try {
-      
       if (!file && mode === "create") {
         form.setFieldError("image", "กรุณาเลือกรูปภาพสินค้า");
         return;
@@ -170,7 +169,8 @@ export default function CreateEditProductModal({
         form.setFieldError("image", "กรุณาเลือกรูปภาพสินค้า");
         return;
       }
-      
+
+      setIsUploading(true);
       if (file !== null) {
         const formData = new FormData();
         formData.append("file", file);
@@ -193,7 +193,7 @@ export default function CreateEditProductModal({
       if (mode === "edit") {
         (processedValues as editProductType).id = productData?.id ?? "";
       }
-      
+
       if (onSubmit) {
         onSubmit(processedValues);
       }
@@ -203,6 +203,8 @@ export default function CreateEditProductModal({
         message: "ไม่สามารถสร้างสินค้าได้",
         color: "red",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -368,7 +370,7 @@ export default function CreateEditProductModal({
           </div>
         </div>
         <Group mt="md" justify="right">
-          <Button type="submit" loading={loading}>
+          <Button type="submit" loading={loading || isUploading}>
             {mode === "create" ? "เพิ่มสินค้า" : "แก้ไขสินค้า"}
           </Button>
         </Group>
